@@ -12,15 +12,15 @@ public class World {
 	public Player player;
 	public ArrayList<DropThing> allDt;
 	public World(int screenW, int screenH){
-		collision = new Collision();
+		collision = new Collision(allDt);
 		player = new Player(screenW);
 		allDt = new ArrayList<DropThing>();
+		Log.i("debug","world created");
 	}
 	
 	public void addDropThing(int x) {
 		DropThing dt = new DropThing(x, collision);
 		allDt.add(dt);
-		collision.addDropThing(dt);
 	}
 	
 

@@ -8,12 +8,8 @@ import java.util.ArrayList;
 public class Collision {
 	private ArrayList<DropThing> allDt;
 
-	public Collision(){
-		allDt = new ArrayList<DropThing>();
-	}
-	
-	public void addDropThing(DropThing dt) {
-		allDt.add(dt);
+	public Collision(ArrayList<DropThing> allDt){
+		this.allDt = allDt;
 	}
 
 	// 检测两物体是否碰撞

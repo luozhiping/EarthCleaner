@@ -26,13 +26,14 @@ public class MainSurfaceView extends SurfaceView implements
 	private Canvas canvas;
 	private int screenW, screenH;
 	private World world;
+	private GamePlaying gamePlaying;
 
 	final static int GAME_MENU = 0;
 	final static int GAME_PLAYING = 1;
 	final static int GAME_WIN = 2;
 	final static int GAME_LOST = 3;
 	final static int GAME_START = 4;
-	public static int status;
+	public static int status = 4;
 
 	// 构造函数
 	public MainSurfaceView(Context context, AttributeSet attrs) {
@@ -40,12 +41,12 @@ public class MainSurfaceView extends SurfaceView implements
 		sfh = this.getHolder(); // 装载器初始化
 		sfh.addCallback(this);
 		paint = new Paint(); // 画笔初始化
-		paint.setColor(Color.WHITE);
 		setFocusable(true);
+		Log.i("debug", "surfaceView created");
 	}
 
 	@Override
-	public void run() { //游戏主线程
+	public void run() { // 游戏主线程
 		while (flag) {
 			long start = System.currentTimeMillis();
 			logic();
@@ -61,11 +62,6 @@ public class MainSurfaceView extends SurfaceView implements
 		}
 	}
 
-	private void init_world() {
-		world = new World(screenW, screenH);
-		status = GAME_PLAYING;
-	}
-
 	public void doDraw() {// 帧绘图
 		try {
 			canvas = sfh.lockCanvas();
@@ -77,6 +73,7 @@ public class MainSurfaceView extends SurfaceView implements
 				case GAME_START:
 					break;
 				case GAME_PLAYING:
+					gamePlaying.doDraw(canvas, paint);
 					break;
 				case GAME_WIN:
 					break;
@@ -99,9 +96,10 @@ public class MainSurfaceView extends SurfaceView implements
 		case GAME_MENU:
 			break;
 		case GAME_START:
-			init_world();
+			prePlayInit();
 			break;
 		case GAME_PLAYING:
+			gamePlaying.logic();
 			break;
 		case GAME_WIN:
 			break;
@@ -110,6 +108,12 @@ public class MainSurfaceView extends SurfaceView implements
 		}
 	}
 
+	private void prePlayInit() {//游戏开始前初始化
+		gamePlaying = new GamePlaying(screenW, screenH);
+		gamePlaying.init_world();
+		status = GAME_PLAYING;
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		switch (status) {
