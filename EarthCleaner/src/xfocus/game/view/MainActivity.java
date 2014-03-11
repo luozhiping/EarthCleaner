@@ -1,5 +1,6 @@
-package xfocus.game;
+package xfocus.game.view;
 
+import xfocus.game.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;

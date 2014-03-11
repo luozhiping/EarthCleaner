@@ -8,10 +8,11 @@ import android.graphics.Paint;
 public class Player {
 	private int hp_length;//总血量
 	private int hp_current;//当前血量
-	
+	private int score;
 	public Player(int screenWidth) {
 		hp_length = screenWidth;
 		hp_current = screenWidth/2; //默认初始血量为50%
+		score = 0;
 	}
 	
 	public void doDraw(Canvas canvas, Paint paint) {
@@ -30,6 +31,14 @@ public class Player {
 	
 	public void hp_plus() {
 		
+	}
+	
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int i) {
+		score = i;
 	}
 	
 }

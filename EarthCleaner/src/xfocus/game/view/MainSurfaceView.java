@@ -1,33 +1,36 @@
-package xfocus.game;
+package xfocus.game.view;
 
-import xfocus.game.components.World;
+import xfocus.game.controllers.GameMenu;
+import xfocus.game.controllers.GamePlaying;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.View.OnTouchListener;
 
 /**
  * 主要SurfaceView 用于显示游戏画面
  * 
  */
 public class MainSurfaceView extends SurfaceView implements
-		SurfaceHolder.Callback, Runnable {
+		SurfaceHolder.Callback, Runnable, OnGestureListener, OnTouchListener {
 	private SurfaceHolder sfh; // SurfaceView装载器（SurfaceView必备）
 	private Paint paint; // 画笔
-	private Thread th;
+	private Thread th; // 游戏主线程
 	private boolean flag; // 线程标识符
 	private Canvas canvas;
-	private int screenW, screenH;
-	private World world;
+	private int screenW, screenH; // 屏幕尺寸
 	private GamePlaying gamePlaying;
-
+	private GameMenu gameMenu;
+	private GestureDetector gesture;// 手势监听
+	// 游戏状态码
 	final static int GAME_MENU = 0;
 	final static int GAME_PLAYING = 1;
 	final static int GAME_WIN = 2;
@@ -42,6 +45,8 @@ public class MainSurfaceView extends SurfaceView implements
 		sfh.addCallback(this);
 		paint = new Paint(); // 画笔初始化
 		setFocusable(true);
+		gesture = new GestureDetector(this);
+		this.setOnTouchListener(this);
 		Log.i("debug", "surfaceView created");
 	}
 
@@ -67,6 +72,7 @@ public class MainSurfaceView extends SurfaceView implements
 			canvas = sfh.lockCanvas();
 			if (canvas != null) {
 				canvas.drawRGB(255, 255, 255); // 刷屏
+
 				switch (status) {
 				case GAME_MENU:
 					break;
@@ -108,26 +114,19 @@ public class MainSurfaceView extends SurfaceView implements
 		}
 	}
 
-	private void prePlayInit() {//游戏开始前初始化
+	private void prePlayInit() {// 游戏开始前初始化
 		gamePlaying = new GamePlaying(screenW, screenH);
 		gamePlaying.init_world();
 		status = GAME_PLAYING;
 	}
-	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		switch (status) {
-		case GAME_MENU:
-			break;
-		case GAME_PLAYING:
-			break;
-		case GAME_WIN:
-			break;
-		case GAME_LOST:
-			break;
-		}
-		return true;
-	}
+
+	private int touchDownX = 0;
+	private int touchDownY = 0;
+	private int touchStatus = 0;
+
+	final static int SLIDE_LEFT = 0;
+	final static int SLIDE_RIGHT = 1;
+	final static int PRESS = 2;
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
@@ -147,5 +146,64 @@ public class MainSurfaceView extends SurfaceView implements
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		flag = false;
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		switch (status) {
+		case GAME_MENU:
+			break;
+		case GAME_PLAYING:
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				gamePlaying.touchDownEvent((int) event.getX(),
+						(int) event.getY());
+			} else if (event.getAction() == MotionEvent.ACTION_UP) {
+				gamePlaying.touchUpEvent();
+			}
+			break;
+		case GAME_WIN:
+			break;
+		case GAME_LOST:
+			break;
+		}
+
+		return gesture.onTouchEvent(event);
+	}
+
+	@Override
+	public boolean onDown(MotionEvent e) {
+		return false;
+	}
+
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		return false;
+	}
+
+	@Override
+	public void onLongPress(MotionEvent e) {
+
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		switch (status) {
+		case GAME_PLAYING:
+			gamePlaying.onFling(e1, e2, distanceX, distanceY);
+			break;
+		}
+		return false;
+	}
+
+	@Override
+	public void onShowPress(MotionEvent e) {
+
+	}
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		return false;
 	}
 }
