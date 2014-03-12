@@ -1,6 +1,7 @@
 package xfocus.game.components;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /*
  * Åö×²¼ì²â

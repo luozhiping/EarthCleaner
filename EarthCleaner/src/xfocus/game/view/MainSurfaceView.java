@@ -21,6 +21,12 @@ import android.view.View.OnTouchListener;
  */
 public class MainSurfaceView extends SurfaceView implements
 		SurfaceHolder.Callback, Runnable, OnGestureListener, OnTouchListener {
+	final static int GAME_MENU = 0;
+	final static int GAME_PLAYING = 1;
+	final static int GAME_WIN = 2;
+	final static int GAME_LOST = 3;
+	final static int GAME_START = 4;
+
 	private SurfaceHolder sfh; // SurfaceView装载器（SurfaceView必备）
 	private Paint paint; // 画笔
 	private Thread th; // 游戏主线程
@@ -30,13 +36,7 @@ public class MainSurfaceView extends SurfaceView implements
 	private GamePlaying gamePlaying;
 	private GameMenu gameMenu;
 	private GestureDetector gesture;// 手势监听
-	// 游戏状态码
-	final static int GAME_MENU = 0;
-	final static int GAME_PLAYING = 1;
-	final static int GAME_WIN = 2;
-	final static int GAME_LOST = 3;
-	final static int GAME_START = 4;
-	public static int status = 4;
+	private int status = GAME_START; // 游戏状态码
 
 	// 构造函数
 	public MainSurfaceView(Context context, AttributeSet attrs) {
@@ -116,17 +116,15 @@ public class MainSurfaceView extends SurfaceView implements
 
 	private void prePlayInit() {// 游戏开始前初始化
 		gamePlaying = new GamePlaying(screenW, screenH);
-		gamePlaying.init_world();
+		gamePlaying.init_world(getContext());
 		status = GAME_PLAYING;
 	}
 
-	private int touchDownX = 0;
-	private int touchDownY = 0;
-	private int touchStatus = 0;
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
 
-	final static int SLIDE_LEFT = 0;
-	final static int SLIDE_RIGHT = 1;
-	final static int PRESS = 2;
+		return true;
+	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
@@ -158,7 +156,10 @@ public class MainSurfaceView extends SurfaceView implements
 				gamePlaying.touchDownEvent((int) event.getX(),
 						(int) event.getY());
 			} else if (event.getAction() == MotionEvent.ACTION_UP) {
-				gamePlaying.touchUpEvent();
+				gamePlaying
+						.touchUpEvent((int) event.getX(), (int) event.getY());
+			} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+				gamePlaying.touchMove((int) event.getX(), (int) event.getY());
 			}
 			break;
 		case GAME_WIN:
@@ -166,7 +167,6 @@ public class MainSurfaceView extends SurfaceView implements
 		case GAME_LOST:
 			break;
 		}
-
 		return gesture.onTouchEvent(event);
 	}
 

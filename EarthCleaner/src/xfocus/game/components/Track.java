@@ -1,9 +1,6 @@
 package xfocus.game.components;
 
 import java.util.Random;
-
-import android.util.Log;
-
 /*
  * 下落物体路径类（轨迹）
  */
@@ -20,7 +17,6 @@ public class Track {
 		int x = dt.getDropThingX() - 20 + random.nextInt(40);
 		dt.setDropThingX(x);
 		dt.setDropThingY(dt.getDropThingY() + 10);
-		Log.i("debug", "track_X:" + x);
 		if (collision.isCollision(dt)) {
 			// ...遇到其他物体则向反方向下落
 			dt.setDropThingX(dt.getDropThingX() - 2*x);
@@ -37,7 +33,6 @@ public class Track {
 
 		}
 		dt.setDropThingY(dt.getDropThingY() + 10);
-
 	}
 
 }

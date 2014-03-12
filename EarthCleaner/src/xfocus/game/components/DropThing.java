@@ -11,12 +11,15 @@ import android.util.Log;
 public class DropThing {
 	public final static int DROPING = 0; // 状态：自由下落
 	public final static int SLIDED = 1;// 状态： 已被滑动
-	final static int DEAD = 2;// 状态： 已被收集
-	final static int GOOD = 0; // 好东西
-	final static int BAD = 1; // 坏东西
-	final static int OXYGEN = 0; // 氧气
-	final static int SULFUR_DIOXIDE = 1; // 二氧化硫
-	final static int CARBON_DIOXIDE = 2; // 二氧化碳
+	public final static int DEAD = 2;// 状态： 已被收集
+	
+	public final static int GOOD = 0; // 好东西
+	public final static int BAD = 1; // 坏东西
+	
+	public final static int OXYGEN = 0; // 氧气
+	public final static int SULFUR_DIOXIDE = 1; // 二氧化硫
+	public final static int CARBON_DIOXIDE = 2; // 二氧化碳
+	
 	public final static int SLIDED_LEFT = 1; // 状态：向左滑动
 	public final static int SLIDED_RIGHT = 2; // 状态：向右滑动
 
@@ -34,7 +37,7 @@ public class DropThing {
 	public DropThing(int x, Collision collision, int radius) {
 		track = new Track(collision);
 		dropThingX = x;
-		dropThingY = 0;
+		dropThingY = 0 - radius;
 		this.radius = radius;
 
 		status = DROPING;
