@@ -18,21 +18,21 @@ public class TestDropThing {
 
 	@Test
 	public void testDropThing() {
-		Assert.assertNotNull(world);
-		world.addDropThing(100);
-		Assert.assertNotNull(world.allDt.get(0));
-		DropThing dt = world.allDt.get(0);
-		while(true) {
-			System.out.println("current X:" + dt.getDropThingX());
-			System.out.println("current Y:" + dt.getDropThingX());
-			dt.logic();
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+//		Assert.assertNotNull(world);
+//		world.addDropThing(100,100);
+//		Assert.assertNotNull(world.allDt.get(0));
+//		DropThing dt = world.allDt.get(0);
+//		while(true) {
+//			System.out.println("current X:" + dt.getDropThingX());
+//			System.out.println("current Y:" + dt.getDropThingX());
+//			dt.logic();
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 	
