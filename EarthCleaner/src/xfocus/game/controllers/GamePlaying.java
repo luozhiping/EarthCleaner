@@ -1,13 +1,14 @@
 package xfocus.game.controllers;
 
+import xfocus.game.R;
 import xfocus.game.components.CommonMethod;
 import xfocus.game.components.World;
-import android.R;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.view.MotionEvent;
@@ -16,8 +17,8 @@ import android.view.MotionEvent;
  * 游戏过程控制器
  */
 public class GamePlaying {
-	final static int PLAYING = 0; // 游戏状态： 进行中
-	final static int PAUSE = 1; // 游戏状态： 暂停
+	public final static int PLAYING = 0; // 游戏状态： 进行中
+	public final static int PAUSE = 1; // 游戏状态： 暂停
 	final static int MUSIC_PLAY = 0;
 	final static int MUSIC_PAUSE = 1;
 	final static int MUSIC_STOP = 2;
@@ -98,9 +99,18 @@ public class GamePlaying {
 
 	public void init_world(Context context) {
 		world = new World(screenW, screenH);
-		backGroundMusic = MediaPlayer.create(context, );
 		init_menu();
+		init_music(context);
+	}
 
+	private int soundClick;
+	
+	private void init_music(Context context) {
+		backGroundMusic = MediaPlayer.create(context, R.raw.bgm);
+		backGroundMusic.setLooping(true);
+		backGroundMusic.start();
+		sp = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
+//		soundClick = sp.load(context, R.raw.)
 	}
 
 	private void init_menu() {// 暂停菜单初始化
@@ -141,6 +151,7 @@ public class GamePlaying {
 		case PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
 				status = PAUSE;
+				backGroundMusic.pause();
 			} else {
 				world.touchUpEvent();
 			}
@@ -150,10 +161,12 @@ public class GamePlaying {
 				if (CommonMethod.isTouchInRect(x, y, btnResume)) {
 					status = PLAYING;
 					pBtnResume.setColor(Color.GRAY);
+					backGroundMusic.start();
 				} else if (CommonMethod.isTouchInRect(x, y, btnExit)) {
 				}
 			} else {
 				status = PLAYING;
+				backGroundMusic.start();
 			}
 			break;
 		}
@@ -177,5 +190,15 @@ public class GamePlaying {
 			float distanceY) {
 		world.screenSlided(e1, e2);
 	}
+	
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	
+	public int getStatus() {
+		return status;
+	}
+	
+	
 
 }

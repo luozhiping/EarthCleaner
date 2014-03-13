@@ -31,7 +31,7 @@ public class World {
 		this.screenH = screenH;
 		this.screenW = screenW;
 		collision = new Collision(allDt);
-		player = new Player(screenW);
+//		player = new Player(screenW);
 		allDt = new ArrayList<DropThing>();
 		random = new Random();
 		beginTime = System.currentTimeMillis();
@@ -55,7 +55,7 @@ public class World {
 		// 分数绘制
 		paint.setColor(Color.BLACK);
 		paint.setTextSize(25);
-		canvas.drawText("score:" + player.getScore(), screenW - 100, 30, paint);
+//		canvas.drawText("score:" + player.getScore(), screenW - 100, 30, paint);
 		// 收集器绘制
 		paint.setColor(Color.GREEN);
 		canvas.drawRect(0, screenH - 300, 50, screenH, paint);

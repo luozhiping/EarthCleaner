@@ -3,8 +3,10 @@ package xfocus.game.view;
 import xfocus.game.controllers.GameMenu;
 import xfocus.game.controllers.GamePlaying;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -20,104 +22,178 @@ import android.view.View.OnTouchListener;
  * 
  */
 public class MainSurfaceView extends SurfaceView implements
-		SurfaceHolder.Callback, Runnable, OnGestureListener, OnTouchListener {
-	final static int GAME_MENU = 0;
-	final static int GAME_PLAYING = 1;
-	final static int GAME_WIN = 2;
-	final static int GAME_LOST = 3;
-	final static int GAME_START = 4;
+		SurfaceHolder.Callback, OnGestureListener, OnTouchListener {
 
-	private SurfaceHolder sfh; // SurfaceView装载器（SurfaceView必备）
-	private Paint paint; // 画笔
-	private Thread th; // 游戏主线程
-	private boolean flag; // 线程标识符
-	private Canvas canvas;
-	private int screenW, screenH; // 屏幕尺寸
-	private GamePlaying gamePlaying;
-	private GameMenu gameMenu;
+	private MainThread thread;
 	private GestureDetector gesture;// 手势监听
-	private int status = GAME_START; // 游戏状态码
 
 	// 构造函数
 	public MainSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		sfh = this.getHolder(); // 装载器初始化
-		sfh.addCallback(this);
-		paint = new Paint(); // 画笔初始化
+		SurfaceHolder holder = getHolder();
+		holder.addCallback(this);
+
+		thread = new MainThread(holder, context);
 		setFocusable(true);
 		gesture = new GestureDetector(this);
 		this.setOnTouchListener(this);
+
 		Log.i("debug", "surfaceView created");
 	}
 
-	@Override
-	public void run() { // 游戏主线程
-		while (flag) {
-			long start = System.currentTimeMillis();
-			logic();
-			doDraw();
-			long end = System.currentTimeMillis();
+	class MainThread extends Thread {
+		final static int GAME_MENU = 0;
+		final static int GAME_PLAYING = 1;
+		final static int GAME_WIN = 2;
+		final static int GAME_LOST = 3;
+		final static int GAME_START = 4;
+
+		private SurfaceHolder mSurfaceHolder; // SurfaceView装载器（SurfaceView必备）
+		private Paint paint; // 画笔
+		private Thread th; // 游戏主线程
+		private Canvas canvas;
+		private int screenW, screenH; // 屏幕尺寸
+		private GamePlaying gamePlaying;
+		private GameMenu gameMenu;
+		private int status = GAME_MENU; // 游戏状态码
+		private boolean flag; // 线程标识符
+		private Context mContext;
+
+		public MainThread(SurfaceHolder surfaceHolder, Context context) {
+			mSurfaceHolder = surfaceHolder;
+			mContext = context;
+
+			Resources res = context.getResources();
+
+		}
+
+		@Override
+		public void run() { // 游戏主线程
+			while (flag) {
+				long start = System.currentTimeMillis();
+				logic();
+				doDraw();
+				long end = System.currentTimeMillis();
+				try {
+					if (end - start < 100) { // 每帧100ms
+						Thread.sleep(100 - (end - start));
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		public void doDraw() {// 帧绘图
 			try {
-				if (end - start < 100) { // 每帧100ms
-					Thread.sleep(100 - (end - start));
+				canvas = mSurfaceHolder.lockCanvas();
+				if (canvas != null) {
+					canvas.drawRGB(255, 255, 255); // 刷屏
+					switch (status) {
+					case GAME_MENU:
+						gameMenu.doDraw(canvas, paint);
+						break;
+					case GAME_START:
+						break;
+					case GAME_PLAYING:
+						gamePlaying.doDraw(canvas, paint);
+						break;
+					case GAME_WIN:
+						break;
+					case GAME_LOST:
+						break;
+					}
+
 				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+			} catch (Exception e) {
 
-	public void doDraw() {// 帧绘图
-		try {
-			canvas = sfh.lockCanvas();
-			if (canvas != null) {
-				canvas.drawRGB(255, 255, 255); // 刷屏
-
-				switch (status) {
-				case GAME_MENU:
-					break;
-				case GAME_START:
-					break;
-				case GAME_PLAYING:
-					gamePlaying.doDraw(canvas, paint);
-					break;
-				case GAME_WIN:
-					break;
-				case GAME_LOST:
-					break;
+			} finally {
+				if (canvas != null) {
+					mSurfaceHolder.unlockCanvasAndPost(canvas);
 				}
-
-			}
-		} catch (Exception e) {
-
-		} finally {
-			if (canvas != null) {
-				sfh.unlockCanvasAndPost(canvas);
 			}
 		}
-	}
 
-	private void logic() {// 帧逻辑
-		switch (status) {
-		case GAME_MENU:
-			break;
-		case GAME_START:
-			prePlayInit();
-			break;
-		case GAME_PLAYING:
-			gamePlaying.logic();
-			break;
-		case GAME_WIN:
-			break;
-		case GAME_LOST:
-			break;
+		private void logic() {// 帧逻辑
+			switch (status) {
+			case GAME_MENU:
+				gameMenu.logic();
+				break;
+			case GAME_START:
+				prePlayInit();
+				break;
+			case GAME_PLAYING:
+				gamePlaying.logic();
+				break;
+			case GAME_WIN:
+				break;
+			case GAME_LOST:
+				break;
+			}
 		}
-	}
 
-	private void prePlayInit() {// 游戏开始前初始化
-		gamePlaying = new GamePlaying(screenW, screenH);
-		gamePlaying.init_world(getContext());
-		status = GAME_PLAYING;
+		private void prePlayInit() {// 游戏开始前初始化
+			gamePlaying = new GamePlaying(screenW, screenH);
+			gamePlaying.init_world(getContext());
+			status = GAME_PLAYING;
+		}
+
+		public void setRunning(boolean b) {
+			flag = b;
+		}
+
+		public void setState(int mode) {
+            synchronized (mSurfaceHolder) {
+            	switch(status) {
+            	case GAME_PLAYING:
+            		//gamePlaying.setState();
+            		break;
+            	}
+            }
+        }
+		public synchronized void restoreState(Bundle savedState) {
+            synchronized (mSurfaceHolder) {
+            	
+            }
+		}
+		
+		 public Bundle saveState(Bundle map) {
+	            synchronized (mSurfaceHolder) {
+	            }
+	            return map;
+	        }
+		
+		public void pause() {
+			synchronized (mSurfaceHolder) {
+				// if (mMode == STATE_RUNNING) setState(STATE_PAUSE);
+			}
+		}
+
+		public void doTouchDown(int x, int y) {
+			gamePlaying.touchDownEvent(x, y);
+		}
+
+		public void doTouchUp(int x, int y) {
+			gamePlaying.touchUpEvent(x, y);
+		}
+
+		public void doTouchMove(int x, int y) {
+			gamePlaying.touchMove(x, y);
+		}
+
+		public void onFling(MotionEvent e1, MotionEvent e2, float distanceX,
+				float distanceY) {
+			gamePlaying.onFling(e1, e2, distanceX, distanceY);
+		}
+		
+		
+		
+	}
+	
+	
+
+	public MainThread getThread() {
+		return thread;
 	}
 
 	@Override
@@ -128,11 +204,14 @@ public class MainSurfaceView extends SurfaceView implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		screenH = this.getHeight();
-		screenW = this.getWidth();
-		flag = true;
-		th = new Thread(this);
-		th.start();
+		thread.setRunning(true);
+		thread.start();
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasWindowFocus) {
+		if (!hasWindowFocus)
+			thread.pause();
 	}
 
 	@Override
@@ -143,30 +222,31 @@ public class MainSurfaceView extends SurfaceView implements
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		flag = false;
+		Log.i("debug", "destory surface");
+		boolean retry = true;
+		thread.setRunning(false);
+		while (retry) {
+			try {
+				thread.join();
+				retry = false;
+			} catch (InterruptedException e) {
+			}
+		}
 	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		switch (status) {
-		case GAME_MENU:
-			break;
-		case GAME_PLAYING:
-			if (event.getAction() == MotionEvent.ACTION_DOWN) {
-				gamePlaying.touchDownEvent((int) event.getX(),
-						(int) event.getY());
-			} else if (event.getAction() == MotionEvent.ACTION_UP) {
-				gamePlaying
-						.touchUpEvent((int) event.getX(), (int) event.getY());
-			} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-				gamePlaying.touchMove((int) event.getX(), (int) event.getY());
-			}
-			break;
-		case GAME_WIN:
-			break;
-		case GAME_LOST:
-			break;
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			thread.doTouchDown((int) event.getX(), (int) event.getY());
+
+		} else if (event.getAction() == MotionEvent.ACTION_UP) {
+			thread.doTouchUp((int) event.getX(), (int) event.getY());
+
+		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			thread.doTouchMove((int) event.getX(), (int) event.getY());
+
 		}
+
 		return gesture.onTouchEvent(event);
 	}
 
@@ -189,11 +269,8 @@ public class MainSurfaceView extends SurfaceView implements
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
-		switch (status) {
-		case GAME_PLAYING:
-			gamePlaying.onFling(e1, e2, distanceX, distanceY);
-			break;
-		}
+			thread.onFling(e1, e2, distanceX, distanceY);
+			
 		return false;
 	}
 
