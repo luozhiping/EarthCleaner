@@ -11,6 +11,7 @@ import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.util.Log;
 import android.view.MotionEvent;
 
 /*
@@ -31,11 +32,12 @@ public class GamePlaying {
 	private int musicStatus = 0;
 	private MediaPlayer backGroundMusic;// ±≥æ∞“Ù¿÷
 	private SoundPool sp;// ”Œœ∑“Ù–ß
-
+	private Paint paint; 
 	public GamePlaying(int screenW, int screenH) {
 		this.screenW = screenW;
 		this.screenH = screenH;
 		status = PLAYING;
+		paint = new Paint();
 	}
 
 	public void logic() { // ¬ﬂº≠
@@ -48,8 +50,8 @@ public class GamePlaying {
 		}
 	}
 
-	public void doDraw(Canvas canvas, Paint paint) { // ªÊÕº
-		world.doDraw(canvas, paint);
+	public void doDraw(Canvas canvas) { // ªÊÕº
+		world.doDraw(canvas);
 		canvas.save();
 		paint.setColor(Color.BLACK);
 		canvas.drawRect(10, 10, 20, 40, paint);

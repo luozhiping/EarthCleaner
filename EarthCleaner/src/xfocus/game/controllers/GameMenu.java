@@ -10,7 +10,7 @@ public class GameMenu {
 		
 	}
 	
-	public void doDraw(Canvas canvas, Paint paint) {
+	public void doDraw(Canvas canvas) {
 		
 	}
 	

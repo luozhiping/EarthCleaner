@@ -14,12 +14,13 @@ public class Track {
 
 	public void drop(DropThing dt) {// 设置物体自由运动时下一帧的位置
 		// ...得到dt当前位置，随机改变位置后，判断碰撞
-		int x = dt.getDropThingX() - 20 + random.nextInt(40);
+		int ran = random.nextInt(40);
+		int x = dt.getDropThingX() - 20 + ran;
 		dt.setDropThingX(x);
 		dt.setDropThingY(dt.getDropThingY() + 10);
 		if (collision.isCollision(dt)) {
 			// ...遇到其他物体则向反方向下落
-			dt.setDropThingX(dt.getDropThingX() - 2*x);
+			dt.setDropThingX(dt.getDropThingX() - 2*ran);
 		} else {
 			// ...没遇到物体
 		}

@@ -33,13 +33,13 @@ public class DropThing {
 	private int slidedDirect = 0; // 滑动方向状态标识符
 
 	public int status;
-
+	private Paint paint;
 	public DropThing(int x, Collision collision, int radius) {
 		track = new Track(collision);
 		dropThingX = x;
 		dropThingY = 0 - radius;
 		this.radius = radius;
-
+		paint = new Paint();
 		status = DROPING;
 		Log.i("debug", "dropthing created");
 	}
@@ -68,11 +68,12 @@ public class DropThing {
 		slidedDirect = direct;
 	}
 
-	public void doDraw(Canvas canvas, Paint paint) {
+	public void doDraw(Canvas canvas) {
 		switch (status) {
 		case DROPING:
 			canvas.save();
 			paint.setColor(Color.RED);
+//			Log.i("debug", Integer.toString(paint.getColor()));
 			canvas.drawCircle(dropThingX, dropThingY, radius, paint);
 			canvas.restore();
 			break;

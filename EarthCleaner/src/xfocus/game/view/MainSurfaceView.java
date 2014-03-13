@@ -26,6 +26,7 @@ public class MainSurfaceView extends SurfaceView implements
 
 	private MainThread thread;
 	private GestureDetector gesture;// 手势监听
+	private int screenW, screenH; // 屏幕尺寸
 
 	// 构造函数
 	public MainSurfaceView(Context context, AttributeSet attrs) {
@@ -49,20 +50,19 @@ public class MainSurfaceView extends SurfaceView implements
 		final static int GAME_START = 4;
 
 		private SurfaceHolder mSurfaceHolder; // SurfaceView装载器（SurfaceView必备）
-		private Paint paint; // 画笔
 		private Thread th; // 游戏主线程
 		private Canvas canvas;
-		private int screenW, screenH; // 屏幕尺寸
 		private GamePlaying gamePlaying;
 		private GameMenu gameMenu;
-		private int status = GAME_MENU; // 游戏状态码
+		private int status = GAME_START; // 游戏状态码
 		private boolean flag; // 线程标识符
 		private Context mContext;
-
+//		private int screenW, screenH;
 		public MainThread(SurfaceHolder surfaceHolder, Context context) {
 			mSurfaceHolder = surfaceHolder;
 			mContext = context;
-
+//			this.screenH = screenH;
+//			this.screenW = screenW;
 			Resources res = context.getResources();
 
 		}
@@ -91,12 +91,12 @@ public class MainSurfaceView extends SurfaceView implements
 					canvas.drawRGB(255, 255, 255); // 刷屏
 					switch (status) {
 					case GAME_MENU:
-						gameMenu.doDraw(canvas, paint);
+						gameMenu.doDraw(canvas);
 						break;
 					case GAME_START:
 						break;
 					case GAME_PLAYING:
-						gamePlaying.doDraw(canvas, paint);
+						gamePlaying.doDraw(canvas);
 						break;
 					case GAME_WIN:
 						break;
@@ -133,6 +133,8 @@ public class MainSurfaceView extends SurfaceView implements
 		}
 
 		private void prePlayInit() {// 游戏开始前初始化
+			Log.i("debug", "scw:"+screenW);
+			
 			gamePlaying = new GamePlaying(screenW, screenH);
 			gamePlaying.init_world(getContext());
 			status = GAME_PLAYING;
@@ -204,6 +206,8 @@ public class MainSurfaceView extends SurfaceView implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		screenW = this.getWidth();
+		screenH = this.getHeight();
 		thread.setRunning(true);
 		thread.start();
 	}

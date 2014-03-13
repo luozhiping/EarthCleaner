@@ -25,18 +25,20 @@ public class World {
 	private int difficult = NORMAL; // 游戏难度
 	private long gameTime = 0, beginTime = 0, tempTime = 0, lastTime = 0;
 	private DropThing touchedDT = null; // 被选取的dropthing
-	private int rate;
-
+	private int rate; //dt产生速率
+	private Paint paint;
 	public World(int screenW, int screenH) {
 		this.screenH = screenH;
 		this.screenW = screenW;
+		allDt = new ArrayList<DropThing>();
+		paint = new Paint();
+
 		collision = new Collision(allDt);
 //		player = new Player(screenW);
-		allDt = new ArrayList<DropThing>();
 		random = new Random();
 		beginTime = System.currentTimeMillis();
 		lastTime = System.currentTimeMillis();
-		rate = 50;
+		rate = 10;
 		Log.i("debug", "world created");
 	}
 
@@ -45,10 +47,10 @@ public class World {
 		allDt.add(dt);
 	}
 
-	public void doDraw(Canvas canvas, Paint paint) {
+	public void doDraw(Canvas canvas) {
 		for (int i = 0; i < allDt.size(); i++) {
 			DropThing dt = allDt.get(i);
-			dt.doDraw(canvas, paint);
+			dt.doDraw(canvas);
 		}
 
 		canvas.save();
