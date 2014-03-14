@@ -6,21 +6,21 @@ import java.util.ArrayList;
 import android.util.Log;
 
 /*
- * 纰版��妫�娴�
+ * 绾扮増锟斤拷濡拷濞达拷
  */
 public class Collision {
 	private ArrayList<DropThing> allDt;
-	private int sreenwidth;
+	private int screenwidth;
 	public Collision(ArrayList<DropThing> allDt,int sreenW){
 		this.allDt = allDt;
-		this.sreenwidth=sreenW;
+		this.screenwidth=sreenW;
 	}
 	
-	/*public void addDropThing(DropThing dt) {
-		allDt.add(dt);
-	}*/
-
-	// 妫�娴�涓ょ�╀��������纰版��
+	public int getScreenWidth() {
+		return screenwidth;
+	}
+	
+	// 濡拷濞达拷娑撱倗锟解晙锟斤拷锟斤拷锟斤拷锟斤拷绾扮増锟斤拷
 	public boolean isCollision(DropThing dt) {
 		for(int i=0;i<allDt.size();i++){
 			if(allDt.get(i).equals(dt)){
@@ -37,23 +37,23 @@ public class Collision {
 	
 	
 	
-	// 妫�娴���╀��������琚���堕��浜�
+	// 濡拷濞达拷锟斤拷鈺�锟斤拷锟斤拷锟斤拷锟斤拷鐞氾拷锟斤拷鍫曪拷锟芥禍锟�
 	public int isCollected(DropThing dt) {
 		if(dt.getDropThingX()-dt.getRadius()<=0){
 			return 1;
-		}else if(dt.getDropThingX()+dt.getRadius()>=sreenwidth){
+		}else if(dt.getDropThingX()+dt.getRadius()>=screenwidth){
 			return 2;
 		}else return 0;
 	}
 	
 	
 	/*
-	 ���涓�浣���帮����跺��������纰版�����涓轰��涓�宸���冲�����
-	 涓�涓����涓������戒��纰版��   宸���崇��涓������界�版�� ��跺�����������澶����
+	 锟斤拷锟芥稉锟芥担锟斤拷锟藉府锟斤拷锟斤拷璺猴拷锟斤拷锟斤拷锟斤拷锟界喊鐗堬拷锟斤拷锟斤拷娑撹桨锟斤拷娑擄拷瀹革拷锟斤拷鍐诧拷锟斤拷锟斤拷
+	 娑擄拷娑擄拷锟斤拷锟芥稉锟斤拷锟斤拷锟斤拷鎴掞拷锟界喊鐗堬拷锟�   瀹革拷锟斤拷宕囷拷锟芥稉锟斤拷锟斤拷锟斤拷鐣岋拷鐗堬拷锟� 锟斤拷璺猴拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷婢讹拷锟斤拷锟�
 	*/
 	/*public void isCollision(ArrayList<DropThing> allDt) {
 		if(allDt.size()!=0){
-			//���涓�浣����
+			//锟斤拷锟芥稉锟芥担锟斤拷锟斤拷
 			int kx=0,ky=0,i,min,k;
 			for(i=0;i<allDt.size();i++){
 				kx=kx+allDt.get(i).getDropThingX();
@@ -75,7 +75,7 @@ public class Collision {
 			ArrayList<DropThing> right=new ArrayList<DropThing>();
 			for(i=0;i<allDt.size();i++){
 				if(i!=min){
-					//���寰���朵��涓�宸���崇����╁舰
+					//锟斤拷锟藉锟斤拷锟芥湹锟斤拷娑擄拷瀹革拷锟斤拷宕囷拷锟斤拷锟解晛鑸�
 					if(allDt.get(min).getDropThingY()>=allDt.get(i).getDropThingY()
 							&&allDt.get(min).getDropThingY()>=allDt.get(i).getDropThingY()
 							+allDt.get(i).getDropThingHeight()){
@@ -100,7 +100,7 @@ public class Collision {
 					}
 				}
 			}
-			//瀵�top���left
+			//鐎碉拷top锟斤拷锟絣eft
 			for(i=0;i<top.size();i++){
 				for(k=0;k<left.size();k++){
 					if(top.get(i).getDropThingY()>=left.get(k).getDropThingY()
@@ -126,7 +126,7 @@ public class Collision {
 				}
 			}
 			
-			//瀵�buttom���left
+			//鐎碉拷buttom锟斤拷锟絣eft
 			for(i=0;i<buttom.size();i++){
 				for(k=0;k<left.size();k++){
 					if(buttom.get(i).getDropThingY()>=left.get(k).getDropThingY()
@@ -152,7 +152,7 @@ public class Collision {
 				}
 			}
 			
-			//瀵�top���right
+			//鐎碉拷top锟斤拷锟絩ight
 			for(i=0;i<top.size();i++){
 				for(k=0;k<right.size();k++){
 					if(top.get(i).getDropThingY()>=right.get(k).getDropThingY()
@@ -179,7 +179,7 @@ public class Collision {
 			}
 			
 			
-			//瀵�buttom���right
+			//鐎碉拷buttom锟斤拷锟絩ight
 			for(i=0;i<buttom.size();i++){
 				for(k=0;k<right.size();k++){
 					if(buttom.get(i).getDropThingY()>=right.get(k).getDropThingY()
@@ -204,25 +204,25 @@ public class Collision {
 					}
 				}
 			}
-			//瀵�top
+			//鐎碉拷top
 			for(i=0;i<top.size();i++){
 				for(k=0;k<top.size();k++){
 					
 				}
 			}
-			//瀵�buttom
+			//鐎碉拷buttom
 			for(i=0;i<buttom.size();i++){
 				for(k=0;k<buttom.size();k++){
 					
 				}
 			}
-			//瀵�left
+			//鐎碉拷left
 			for(i=0;i<left.size();i++){
 				for(k=0;k<left.size();k++){
 					
 				}
 			}
-			//瀵�right
+			//鐎碉拷right
 			for(i=0;i<right.size();i++){
 				for(k=0;k<right.size();k++){
 					

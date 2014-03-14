@@ -138,7 +138,7 @@ public class World {
 	 * @param y
 	 *            y坐标
 	 */
-	public void touchDownEvent(int x, int y) {
+	public void touchDownEvent(float x, float y) {
 		touchedDT = dtIsTouched(x, y);
 		if (touchedDT == null) {
 		}
@@ -157,7 +157,7 @@ public class World {
 	 *            y坐标
 	 * @return 返回被选择的dt，如果没有选择则返回null
 	 */
-	public DropThing dtIsTouched(int x, int y) {
+	public DropThing dtIsTouched(float x, float y) {
 		for (int i = 0; i < allDt.size(); i++) {
 			DropThing dt = allDt.get(i);
 

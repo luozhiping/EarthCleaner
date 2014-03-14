@@ -259,7 +259,7 @@ public class MainSurfaceView extends SurfaceView implements
 		 * @param y
 		 *            y坐标
 		 */
-		public void doTouchDown(int x, int y) {
+		public void doTouchDown(float x, float y) {
 			switch (gameState) {
 			case GAME_MENU:
 				break;
@@ -283,7 +283,7 @@ public class MainSurfaceView extends SurfaceView implements
 		 * @param y
 		 *            y坐标
 		 */
-		public void doTouchUp(int x, int y) {
+		public void doTouchUp(float x, float y) {
 			switch (gameState) {
 			case GAME_MENU:
 				break;
@@ -307,7 +307,7 @@ public class MainSurfaceView extends SurfaceView implements
 		 * @param y
 		 *            当前y坐标
 		 */
-		public void doTouchMove(int x, int y) {
+		public void doTouchMove(float x, float y) {
 			switch (gameState) {
 			case GAME_MENU:
 				break;
@@ -400,11 +400,11 @@ public class MainSurfaceView extends SurfaceView implements
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			thread.doTouchDown((int) event.getX(), (int) event.getY());
+			thread.doTouchDown(event.getX(), event.getY());
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
-			thread.doTouchUp((int) event.getX(), (int) event.getY());
+			thread.doTouchUp(event.getX(), event.getY());
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			thread.doTouchMove((int) event.getX(), (int) event.getY());
+			thread.doTouchMove(event.getX(), event.getY());
 		}
 
 		return gesture.onTouchEvent(event);

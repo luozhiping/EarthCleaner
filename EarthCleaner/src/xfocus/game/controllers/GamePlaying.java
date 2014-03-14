@@ -183,7 +183,7 @@ public class GamePlaying {
 	 * @param y
 	 *            y坐标
 	 */
-	public void touchDownEvent(int x, int y) {
+	public void touchDownEvent(float x, float y) {
 		switch (gameState) {
 		case PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
@@ -206,7 +206,7 @@ public class GamePlaying {
 	 * @param y
 	 *            y坐标
 	 */
-	public void touchUpEvent(int x, int y) {
+	public void touchUpEvent(float x, float y) {
 		switch (gameState) { 
 		case PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
@@ -237,7 +237,7 @@ public class GamePlaying {
 	 * @param y
 	 *            当前y坐标
 	 */
-	public void touchMove(int x, int y) {
+	public void touchMove(float x, float y) {
 		switch (gameState) {
 		case PLAYING:
 			break;

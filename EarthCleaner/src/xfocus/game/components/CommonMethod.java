@@ -41,7 +41,7 @@ public class CommonMethod {
 	 * @param rect ¾ØÐÎÊµÀý
 	 * @return
 	 */
-	public static boolean isTouchInRect(int x, int y, RectF rect) {
+	public static boolean isTouchInRect(float x, float y, RectF rect) {
 		if (rect.left <= x && x <= rect.right && rect.top <= y && y <= rect.bottom) {
 			return true;
 		}
