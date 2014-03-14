@@ -11,6 +11,7 @@ import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -26,24 +27,34 @@ public class GamePlaying {
 
 	private World world; // 游戏世界
 	private int screenW, screenH; // 屏幕尺寸
-	private int status; // 游戏状态
+	private int gameState; // 游戏状态
 	private RectF menuRect, btnResume, btnSetting, btnExit, btnPause; // 菜单按钮矩形
 	private Paint pBtnResume, pBtnSetting, pBtnExit; // 菜单按钮画笔
 	private int musicStatus = 0;
 	private MediaPlayer backGroundMusic;// 背景音乐
 	private SoundPool sp;// 游戏音效
-	private Paint paint; 
+	private Paint paint;
+	private int soundClick;
+
+	/**
+	 * 构造函数
+	 * 
+	 * @param screenW
+	 *            屏幕宽
+	 * @param screenH
+	 *            屏幕高
+	 */
 	public GamePlaying(int screenW, int screenH) {
 		this.screenW = screenW;
 		this.screenH = screenH;
-		status = PLAYING;
+		gameState = PLAYING;
 		paint = new Paint();
 	}
 
 	public void logic() { // 逻辑
-		switch (status) {
+		switch (gameState) {
 		case PLAYING:
-			world.logic();
+			world.playingLogic();
 			break;
 		case PAUSE:
 			break;
@@ -57,7 +68,7 @@ public class GamePlaying {
 		canvas.drawRect(10, 10, 20, 40, paint);
 		canvas.drawRect(25, 10, 35, 40, paint);
 		canvas.restore();
-		switch (status) {
+		switch (gameState) {
 		case PLAYING:
 			break;
 		case PAUSE:
@@ -66,7 +77,15 @@ public class GamePlaying {
 		}
 	}
 
-	private void drawPauseMenu(Canvas canvas, Paint paint) {// 暂停菜单绘制
+	/**
+	 * 暂停时暂停菜单的绘制
+	 * 
+	 * @param canvas
+	 *            画布
+	 * @param paint
+	 *            画笔
+	 */
+	private void drawPauseMenu(Canvas canvas, Paint paint) {
 		canvas.save();
 
 		paint.setColor(Color.BLUE);
@@ -88,7 +107,19 @@ public class GamePlaying {
 		canvas.restore();
 	}
 
-	private void drawMenuButton(Canvas canvas, Paint paint, RectF rect,// 暂停菜单上的按钮绘制
+	/**
+	 * 暂停菜单上的按钮绘制
+	 * 
+	 * @param canvas
+	 *            画布
+	 * @param paint
+	 *            画笔
+	 * @param rect
+	 *            矩形实例
+	 * @param btnText
+	 *            按钮名称
+	 */
+	private void drawMenuButton(Canvas canvas, Paint paint, RectF rect,
 			String btnText) {
 		canvas.save();
 		canvas.drawRoundRect(rect, 10, 10, paint);
@@ -99,23 +130,34 @@ public class GamePlaying {
 		canvas.restore();
 	}
 
+	/**
+	 * 开始游戏时初始化游戏世界
+	 * 
+	 * @param context
+	 */
 	public void init_world(Context context) {
 		world = new World(screenW, screenH);
-		init_menu();
-		init_music(context);
+		init_menu(); // 初始化菜单
+		init_music(context); // 初始化音乐音效
 	}
 
-	private int soundClick;
-	
+	/**
+	 * 初始化音乐音效
+	 * 
+	 * @param context
+	 */
 	private void init_music(Context context) {
 		backGroundMusic = MediaPlayer.create(context, R.raw.bgm);
 		backGroundMusic.setLooping(true);
 		backGroundMusic.start();
 		sp = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
-//		soundClick = sp.load(context, R.raw.)
+		// soundClick = sp.load(context, R.raw.)
 	}
 
-	private void init_menu() {// 暂停菜单初始化
+	/**
+	 * 初始化暂停菜单
+	 */
+	private void init_menu() {
 		menuRect = new RectF(screenW / 2 - 100, screenH / 2 - 300,
 				screenW / 2 + 100, screenH / 2);
 		btnResume = new RectF(menuRect.left + 30, menuRect.top + 80,
@@ -133,8 +175,16 @@ public class GamePlaying {
 		pBtnSetting = new Paint(btnPaint);
 	}
 
-	public void touchDownEvent(int x, int y) { // 屏幕按下监听
-		switch (status) {
+	/**
+	 * 屏幕按下监听
+	 * 
+	 * @param x
+	 *            x坐标
+	 * @param y
+	 *            y坐标
+	 */
+	public void touchDownEvent(int x, int y) {
+		switch (gameState) {
 		case PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
 				// status = PAUSE;
@@ -148,12 +198,19 @@ public class GamePlaying {
 		}
 	}
 
-	public void touchUpEvent(int x, int y) { // 触摸屏幕结束抬起监听
-		switch (status) {
+	/**
+	 * 屏幕抬起监听
+	 * 
+	 * @param x
+	 *            x坐标
+	 * @param y
+	 *            y坐标
+	 */
+	public void touchUpEvent(int x, int y) {
+		switch (gameState) { 
 		case PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
-				status = PAUSE;
-				backGroundMusic.pause();
+				pause();
 			} else {
 				world.touchUpEvent();
 			}
@@ -161,21 +218,27 @@ public class GamePlaying {
 		case PAUSE:
 			if (CommonMethod.isTouchInRect(x, y, menuRect)) {
 				if (CommonMethod.isTouchInRect(x, y, btnResume)) {
-					status = PLAYING;
 					pBtnResume.setColor(Color.GRAY);
-					backGroundMusic.start();
+					pause();
 				} else if (CommonMethod.isTouchInRect(x, y, btnExit)) {
 				}
 			} else {
-				status = PLAYING;
-				backGroundMusic.start();
+				unPause();
 			}
 			break;
 		}
 	}
 
+	/**
+	 * 触摸在屏幕上移动
+	 * 
+	 * @param x
+	 *            当前x坐标
+	 * @param y
+	 *            当前y坐标
+	 */
 	public void touchMove(int x, int y) {
-		switch (status) {
+		switch (gameState) {
 		case PLAYING:
 			break;
 		case PAUSE:
@@ -188,19 +251,59 @@ public class GamePlaying {
 		}
 	}
 
-	public void onFling(MotionEvent e1, MotionEvent e2, float distanceX, // 滑动屏幕监听
+	/**
+	 * 屏幕滑动监听
+	 * 
+	 * @param e1
+	 * @param e2
+	 * @param distanceX
+	 * @param distanceY
+	 */
+	public void onFling(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
 		world.screenSlided(e1, e2);
 	}
-	
+
 	public void setStatus(int status) {
-		this.status = status;
+		this.gameState = status;
 	}
-	
+
 	public int getStatus() {
-		return status;
+		return gameState;
 	}
-	
-	
+
+	/**
+	 * 游戏暂停
+	 */
+	public void pause() {
+		if (gameState == PLAYING) {
+			backGroundMusic.pause();
+			world.pause();
+			gameState = PAUSE;
+		}
+	}
+
+	/**
+	 * 保存游戏状态
+	 * 
+	 * @param map
+	 */
+	public void saveState(Bundle map) {
+		if (map != null) {
+			map.putInt("status", gameState);
+
+		}
+	}
+
+	/**
+	 * 游戏继续
+	 */
+	public void unPause() {
+		if (gameState == PAUSE) {
+			backGroundMusic.start();
+			gameState = PLAYING;
+			world.unPause();
+		}
+	}
 
 }

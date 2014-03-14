@@ -3,14 +3,17 @@ package xfocus.game.components;
 
 import java.util.ArrayList;
 
+import android.util.Log;
+
 /*
  * 纰版��妫�娴�
  */
 public class Collision {
 	private ArrayList<DropThing> allDt;
 	private int sreenwidth;
-	public Collision(ArrayList<DropThing> allDt){
+	public Collision(ArrayList<DropThing> allDt,int sreenW){
 		this.allDt = allDt;
+		this.sreenwidth=sreenW;
 	}
 	
 	/*public void addDropThing(DropThing dt) {
@@ -20,7 +23,7 @@ public class Collision {
 	// 妫�娴�涓ょ�╀��������纰版��
 	public boolean isCollision(DropThing dt) {
 		for(int i=0;i<allDt.size();i++){
-			if(allDt.get(i).getDropThingX()==dt.getDropThingX()&&allDt.get(i).getDropThingY()==dt.getDropThingY()){
+			if(allDt.get(i).equals(dt)){
 			}else{
 				if(Math.sqrt(Math.pow(allDt.get(i).getDropThingX()-dt.getDropThingX(), 2)
 						+Math.pow(allDt.get(i).getDropThingY()-dt.getDropThingY(), 2))

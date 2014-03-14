@@ -26,54 +26,43 @@ public class DropThing {
 	private int dropThingX; // 物体当前位置圆心x坐标
 	private int dropThingY; // 物体当前位置圆心y坐标
 
-	private Track track;
+	private Track track; //轨迹实例
 	private int dropThingRole; // 物体角色（好坏）
 	private int dropThingType; // 物体种类
 	private int radius; // 物体半径
 	private int slidedDirect = 0; // 滑动方向状态标识符
 
-	public int status;
+	public int state;
 	private Paint paint;
+	/**
+	 * 构造函数
+	 * @param x 物体初始坐标
+	 * @param collision 传入碰撞实例
+	 * @param radius 物体半径
+	 */
 	public DropThing(int x, Collision collision, int radius) {
 		track = new Track(collision);
 		dropThingX = x;
 		dropThingY = 0 - radius;
 		this.radius = radius;
 		paint = new Paint();
-		status = DROPING;
-		Log.i("debug", "dropthing created");
+		state = DROPING;
+//		Log.i("debug", "dropthing created");
 	}
-
-	public void setDropThingX(int x) {
-		dropThingX = x;
-	}
-
-	public void setDropThingY(int y) {
-		dropThingY = y;
-	}
-
-	public int getDropThingX() {
-		return dropThingX;
-	}
-
-	public int getDropThingY() {
-		return dropThingY;
-	}
-
-	public int getRadius() {
-		return radius;
-	}
-
+	
+	/**
+	 * 设置物体被滑动的方向
+	 * @param direct 方向
+	 */
 	public void setSlidedDirect(int direct) {
 		slidedDirect = direct;
 	}
 
 	public void doDraw(Canvas canvas) {
-		switch (status) {
+		switch (state) {
 		case DROPING:
 			canvas.save();
 			paint.setColor(Color.RED);
-//			Log.i("debug", Integer.toString(paint.getColor()));
 			canvas.drawCircle(dropThingX, dropThingY, radius, paint);
 			canvas.restore();
 			break;
@@ -87,7 +76,7 @@ public class DropThing {
 	}
 
 	public void logic() {
-		switch (status) {
+		switch (state) {
 		case DROPING:
 			track.drop(this);
 			break;
@@ -104,8 +93,28 @@ public class DropThing {
 		}
 	}
 
-	public void setStatus(int status) {
-		this.status = status;
+	public void setDropThingX(int x) {
+		dropThingX = x;
 	}
+
+	public void setDropThingY(int y) {
+		dropThingY = y;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+	
+	public int getDropThingX() {
+		return dropThingX;
+	}
+
+	public int getDropThingY() {
+		return dropThingY;
+	}
+
+	public int getRadius() {
+		return radius;
+	}	
 
 }
