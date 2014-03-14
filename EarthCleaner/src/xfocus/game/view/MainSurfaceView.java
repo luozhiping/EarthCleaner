@@ -40,14 +40,13 @@ public class MainSurfaceView extends SurfaceView implements
 		SurfaceHolder holder = getHolder();
 		holder.addCallback(this);
 		mContext = context;
-		Log.i("my", "destruct");
 		thread = new MainThread(holder, mContext);
 		thread.start();
 		setFocusable(true);
 		gesture = new GestureDetector(this);
 		this.setOnTouchListener(this);
 
-		Log.i("debug", "surfaceView created");
+		Log.i("debug", "surfaceView destructed");
 	}
 
 	/**
@@ -99,7 +98,7 @@ public class MainSurfaceView extends SurfaceView implements
 		public MainThread(SurfaceHolder surfaceHolder, Context context) {
 			mSurfaceHolder = surfaceHolder;
 			mContext = context;
-			Log.i("debug", "thread");
+			Log.i("debug", "thread created");
 			Resources res = context.getResources();
 		}
 

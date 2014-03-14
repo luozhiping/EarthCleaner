@@ -23,8 +23,6 @@ public class MainActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		Log.i("debug", "activity created");
-		int width = getWindowManager().getDefaultDisplay().getWidth();
-		int height = getWindowManager().getDefaultDisplay().getHeight();
 		
 //		msfv = new MainSurfaceView(this, width, height);
 		setContentView(R.layout.activity_main);

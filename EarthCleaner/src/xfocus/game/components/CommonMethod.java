@@ -12,8 +12,8 @@ public class CommonMethod {
 	 * @param y2 第二点y坐标
 	 * @return 返回距离
 	 */
-	public static int getDistance(int x1, int y1, int x2, int y2) {
-		return (int) Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+	public static float getDistance(float x1, float y1, float x2, float y2) {
+		return (float) Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 	}
 
 	/**
@@ -26,8 +26,8 @@ public class CommonMethod {
 	 * @param bottom 矩形右下角y坐标
 	 * @return
 	 */
-	public static boolean isTouchInRect(int x, int y, int left, int top,
-			int right, int bottom) {
+	public static boolean isTouchInRect(float x, float y, float left, float top,
+			float right, float bottom) {
 		if (left <= x && x <= right && top <= y && y <= bottom) {
 			return true;
 		}

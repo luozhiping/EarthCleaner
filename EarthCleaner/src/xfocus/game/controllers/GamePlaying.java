@@ -12,7 +12,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 
 /*

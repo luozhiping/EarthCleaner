@@ -21,14 +21,15 @@ public class World {
 	private ArrayList<DropThing> allDt;// 屏幕中下落物体的集合
 	private int screenW, screenH; // 屏幕尺寸
 	private Random random;
-	private int dt_x = 0,// 下落物体类的初始x坐标
-			addDtOrNot = 0;// 下落物体随机生成器
+	private float dt_x = 0, dt_radius = 0;// 下落物体类的初始x坐标
+	private int addDtOrNot = 0;// 下落物体随机生成器
 	private int difficult = NORMAL; // 游戏难度
 	private long gameTime = 0, beginTime = 0, pauseTime = 0, resumeTime = 0,
 			pausingTime = 0;
 	private DropThing touchedDT = null; // 被选取的dropthing
 	private int rate; // dt产生速率
 	private Paint paint;
+
 	/**
 	 * 构造函数
 	 * 
@@ -47,7 +48,7 @@ public class World {
 		player = new Player(screenW, screenH);
 		random = new Random();
 		beginTime = System.currentTimeMillis();
-		rate = 10;
+		rate = 20; // 生成dt的速率
 		Log.i("debug", "world created");
 	}
 
@@ -63,8 +64,8 @@ public class World {
 		paint.setColor(Color.BLACK);
 		paint.setTextSize(25);
 		canvas.drawText("score:" + player.getScore(), screenW - 100, 30, paint);
-		canvas.drawText("time:" +Long.toString(gameTime/1000) , screenW - 100, 60,
-				paint);
+		canvas.drawText("time:" + Long.toString(gameTime / 1000),
+				screenW - 100, 60, paint);
 		// 收集器绘制
 		paint.setColor(Color.GREEN);
 		canvas.drawRect(0, screenH - 300, 50, screenH - 50, paint);
@@ -88,7 +89,7 @@ public class World {
 	 * @param radius
 	 *            dt半径
 	 */
-	public void addDropThing(int x, int radius) {
+	public void addDropThing(float x, float radius) {
 		DropThing dt = new DropThing(x, collision, radius);
 		allDt.add(dt);
 	}
@@ -116,7 +117,7 @@ public class World {
 	 */
 	private void addDtToWorld(int rate) {
 		if (addDtOrNot == random.nextInt(rate)) { // 模拟随机数添加dropthing
-			dt_x = 50 + random.nextInt(screenW - 100);
+			dt_x = 50 + random.nextFloat() * (screenW - 100);
 			boolean createDtFlag = true;
 			for (int i = 0; i < allDt.size(); i++) {
 				if (CommonMethod.getDistance(dt_x, 0 - 50, allDt.get(i)
@@ -125,7 +126,8 @@ public class World {
 				}
 			}
 			if (createDtFlag) {
-				addDropThing(dt_x, 50);
+				dt_radius = 10 * random.nextFloat() + 40;
+				addDropThing(dt_x, dt_radius);
 			}
 		}
 	}
@@ -188,7 +190,7 @@ public class World {
 	 */
 	public void screenSlided(MotionEvent e1, MotionEvent e2) {
 		if (touchedDT != null) {
-			if (CommonMethod.getDistance((int) e1.getX(), (int) e1.getY(),
+			if (CommonMethod.getDistance(e1.getX(), e1.getY(),
 					touchedDT.getDropThingX(), touchedDT.getDropThingY()) <= touchedDT
 					.getRadius()) {
 				if (e2.getX() < e1.getX()) {

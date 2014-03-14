@@ -23,13 +23,13 @@ public class DropThing {
 	public final static int SLIDED_LEFT = 1; // 状态：向左滑动
 	public final static int SLIDED_RIGHT = 2; // 状态：向右滑动
 
-	private int dropThingX; // 物体当前位置圆心x坐标
-	private int dropThingY; // 物体当前位置圆心y坐标
+	private float dropThingX; // 物体当前位置圆心x坐标
+	private float dropThingY; // 物体当前位置圆心y坐标
 
 	private Track track; //轨迹实例
 	private int dropThingRole; // 物体角色（好坏）
 	private int dropThingType; // 物体种类
-	private int radius; // 物体半径
+	private float radius; // 物体半径
 	private int slidedDirect = 0; // 滑动方向状态标识符
 
 	public int state;
@@ -40,7 +40,7 @@ public class DropThing {
 	 * @param collision 传入碰撞实例
 	 * @param radius 物体半径
 	 */
-	public DropThing(int x, Collision collision, int radius) {
+	public DropThing(float x, Collision collision, float radius) {
 		track = new Track(collision);
 		dropThingX = x;
 		dropThingY = 0 - radius;
@@ -93,11 +93,11 @@ public class DropThing {
 		}
 	}
 
-	public void setDropThingX(int x) {
+	public void setDropThingX(float x) {
 		dropThingX = x;
 	}
 
-	public void setDropThingY(int y) {
+	public void setDropThingY(float y) {
 		dropThingY = y;
 	}
 
@@ -105,15 +105,15 @@ public class DropThing {
 		this.state = state;
 	}
 	
-	public int getDropThingX() {
+	public float getDropThingX() {
 		return dropThingX;
 	}
 
-	public int getDropThingY() {
+	public float getDropThingY() {
 		return dropThingY;
 	}
 
-	public int getRadius() {
+	public float getRadius() {
 		return radius;
 	}	
 
