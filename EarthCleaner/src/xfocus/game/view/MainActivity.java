@@ -1,6 +1,7 @@
 package xfocus.game.view;
 
 import xfocus.game.R;
+import xfocus.game.components.CommonValue;
 import xfocus.game.view.MainSurfaceView.MainThread;
 import android.app.Activity;
 import android.os.Bundle;
@@ -31,7 +32,7 @@ public class MainActivity extends Activity {
 		thread = msfv.getThread();
 		if (savedInstanceState == null) {
 			Log.i("debug", "saveStateNULL");
-            thread.setState(MainSurfaceView.MainThread.GAME_PLAYING);
+            thread.setState(CommonValue.GAME_STATE_PLAYING);
         } else {
 			Log.i("debug", "saveStateNotNULL");
             thread.restoreState(savedInstanceState);
@@ -67,7 +68,7 @@ public class MainActivity extends Activity {
 		Log.i("bundle", "restore");
 		if (savedInstanceState == null) {
 			Log.i("debug", "restoreNull");
-            thread.setState(MainSurfaceView.MainThread.GAME_PLAYING);
+            thread.setState(CommonValue.GAME_STATE_PLAYING);
         } else {
 			Log.i("debug", "restoreNotNull");
             thread.restoreState(savedInstanceState);

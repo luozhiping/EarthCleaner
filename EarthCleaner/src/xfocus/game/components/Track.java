@@ -1,8 +1,6 @@
 package xfocus.game.components;
 
 import java.util.Random;
-
-import android.util.Log;
 /*
  * 下落物体路径类（轨迹）
  */
@@ -28,14 +26,23 @@ public class Track {
 		}
 	}
 
-	public void dropAfterSlide(DropThing dt, int direct) {// 设置滑动后物体下一帧的位置
+	private float leftX = 0, leftY = 960 - 50,
+			rightX = 600, rightY = 960 - 50;
+	private float xc,yc,spX,spY;
+	public void slideInit(float x, float y, int direct) {
 		if(direct == 1) {
-			dt.setDropThingX(dt.getDropThingX() - 1);
-		} else if (direct == 2){
-			dt.setDropThingX(dt.getDropThingX() + 1);
-
+			xc = leftX - x;
+			yc = leftY - y;
+		} else { 
+			xc = rightX - x;
+			yc = rightY - y;
 		}
-		dt.setDropThingY(dt.getDropThingY() + 2);
+		spX = xc/120;
+		spY = yc/120;
+	}
+	public void dropAfterSlide(DropThing dt, int direct) {// 设置滑动后物体下一帧的位置
+		dt.setDropThingX(dt.getDropThingX() + spX);
+		dt.setDropThingY(dt.getDropThingY() + spY);
 	}
 
 }

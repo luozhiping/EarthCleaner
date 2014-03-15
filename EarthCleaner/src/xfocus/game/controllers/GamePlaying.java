@@ -2,7 +2,9 @@ package xfocus.game.controllers;
 
 import xfocus.game.R;
 import xfocus.game.components.CommonMethod;
+import xfocus.game.components.CommonValue;
 import xfocus.game.components.World;
+import xfocus.game.view.MainSurfaceView;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -18,25 +20,25 @@ import android.view.MotionEvent;
  * 游戏过程控制器
  */
 public class GamePlaying {
-	public final static int PLAYING = 0; // 游戏状态： 进行中
-	public final static int PAUSE = 1; // 游戏状态： 暂停
-	final static int MUSIC_PLAY = 0;
-	final static int MUSIC_PAUSE = 1;
-	final static int MUSIC_STOP = 2;
+	public final static int GAME_FREE_MODE = 0;
+	public final static int GAME_MISSION_MODE = 1;
 
 	private World world; // 游戏世界
 	private int screenW, screenH; // 屏幕尺寸
 	private int gameState; // 游戏状态
-	private RectF menuRect, btnResume, btnSetting, btnExit, btnPause; // 菜单按钮矩形
+	private RectF menuRect, btnResume, btnSetting, btnExit, btnPause, lostRect; // 菜单按钮矩形
 	private Paint pBtnResume, pBtnSetting, pBtnExit; // 菜单按钮画笔
 	private int musicStatus = 0;
 	private MediaPlayer backGroundMusic;// 背景音乐
 	private SoundPool sp;// 游戏音效
 	private Paint paint;
 	private int soundClick;
+	private int gameMode;
+	private int mission;
+	private Context mContext;
 
 	/**
-	 * 构造函数
+	 * 自由模式构造函数
 	 * 
 	 * @param screenW
 	 *            屏幕宽
@@ -46,34 +48,78 @@ public class GamePlaying {
 	public GamePlaying(int screenW, int screenH) {
 		this.screenW = screenW;
 		this.screenH = screenH;
-		gameState = PLAYING;
+		gameState = CommonValue.GAME_STATE_PLAYING;
 		paint = new Paint();
+		this.gameMode = GAME_FREE_MODE;
+	}
+
+	/**
+	 * 闯关模式构造函数
+	 * 
+	 * @param screenW
+	 * @param screenH
+	 * @param mission
+	 */
+	public GamePlaying(int screenW, int screenH, int mission) {
+		this.screenW = screenW;
+		this.screenH = screenH;
+		gameState = CommonValue.GAME_STATE_PLAYING;
+		paint = new Paint();
+		this.mission = mission;
+		this.gameMode = GAME_MISSION_MODE;
 	}
 
 	public void logic() { // 逻辑
 		switch (gameState) {
-		case PLAYING:
+		case CommonValue.GAME_STATE_PLAYING:
 			world.playingLogic();
+			if (world.getPlayer().getHp() <= 0) {
+				gameState = CommonValue.GAME_STATE_LOST;
+			}
 			break;
-		case PAUSE:
+		case CommonValue.GAME_STATE_PAUSE:
+			break;
+		case CommonValue.GAME_STATE_LOST:
 			break;
 		}
 	}
 
 	public void doDraw(Canvas canvas) { // 绘图
+		drawWorld(canvas);
+		switch (gameState) {
+		case CommonValue.GAME_STATE_PLAYING:
+			break;
+		case CommonValue.GAME_STATE_PAUSE:
+			drawPauseMenu(canvas, paint);
+			break;
+		case CommonValue.GAME_STATE_LOST:
+			drawLost(canvas);
+			break;
+		}
+	}
+
+	private void drawLost(Canvas canvas) {
+		canvas.save();
+		paint.setColor(Color.LTGRAY);
+		paint.setTextSize(60);
+		canvas.drawRoundRect(lostRect, 20, 20, paint);
+		paint.setColor(Color.BLACK);
+		paint.setTextScaleX(1);
+		canvas.drawText("LOST!", screenW / 2 - 100, screenH / 2 - 300, paint);
+		canvas.drawText("socre:" + world.getPlayer().getScore(),
+				screenW / 2 - 100, screenH / 2 - 200, paint);
+		paint.setColor(Color.RED);
+		canvas.drawCircle(screenW / 2, screenH / 2, 30, paint);
+		canvas.restore();
+	}
+
+	public void drawWorld(Canvas canvas) {
 		world.doDraw(canvas);
 		canvas.save();
 		paint.setColor(Color.BLACK);
 		canvas.drawRect(10, 10, 20, 40, paint);
 		canvas.drawRect(25, 10, 35, 40, paint);
 		canvas.restore();
-		switch (gameState) {
-		case PLAYING:
-			break;
-		case PAUSE:
-			drawPauseMenu(canvas, paint);
-			break;
-		}
 	}
 
 	/**
@@ -94,13 +140,17 @@ public class GamePlaying {
 		paint.setColor(Color.BLACK);
 		paint.setStrokeWidth(3);
 		paint.setTextSize(30);
-		canvas.drawText("游戏菜单", menuRect.left + 40, menuRect.top + 45, paint);
+		canvas.drawText(CommonValue.PAUSE_MENU_TITLE, menuRect.left + 40,
+				menuRect.top + 45, paint);
 		canvas.drawLine(menuRect.left, menuRect.top + 70, menuRect.right,
 				menuRect.top + 70, paint);
 
-		drawMenuButton(canvas, pBtnResume, btnResume, "继续");
-		drawMenuButton(canvas, pBtnSetting, btnSetting, "设置");
-		drawMenuButton(canvas, pBtnExit, btnExit, "退出");
+		drawMenuButton(canvas, pBtnResume, btnResume,
+				CommonValue.PAUSE_MENU_BTN_RESUME);
+		drawMenuButton(canvas, pBtnSetting, btnSetting,
+				CommonValue.PAUSE_MENU_BTN_SETTING);
+		drawMenuButton(canvas, pBtnExit, btnExit,
+				CommonValue.PAUSE_MENU_BTN_EXIT);
 
 		paint.setAlpha(255);
 		canvas.restore();
@@ -136,7 +186,13 @@ public class GamePlaying {
 	 */
 	public void init_world(Context context) {
 		world = new World(screenW, screenH);
-		init_menu(); // 初始化菜单
+		init_rect(); // 初始化菜单
+		init_music(context); // 初始化音乐音效
+	}
+
+	public void init_world(Context context, int mission) {
+		world = new World(screenW, screenH, mission);
+		init_rect(); // 初始化菜单
 		init_music(context); // 初始化音乐音效
 	}
 
@@ -154,9 +210,9 @@ public class GamePlaying {
 	}
 
 	/**
-	 * 初始化暂停菜单
+	 * 初始化矩形组件
 	 */
-	private void init_menu() {
+	private void init_rect() {
 		menuRect = new RectF(screenW / 2 - 100, screenH / 2 - 300,
 				screenW / 2 + 100, screenH / 2);
 		btnResume = new RectF(menuRect.left + 30, menuRect.top + 80,
@@ -165,6 +221,11 @@ public class GamePlaying {
 				btnResume.right, btnResume.bottom + 70);
 		btnExit = new RectF(btnSetting.left, btnSetting.bottom + 20,
 				btnSetting.right, btnSetting.bottom + 70);
+		lostRect = CommonMethod.getRectWithPaddingPercentage(
+				CommonValue.LOST_PADDING_LEFT_PER,
+				CommonValue.LOST_PADDING_TOP_PER,
+				CommonValue.LOST_PADDING_LEFT_PER,
+				CommonValue.LOST_PADDING_BOTTOM_PER, screenW, screenH);
 		btnPause = new RectF(0, 0, 45, 50);
 		Paint btnPaint = new Paint();
 		btnPaint.setColor(Color.GRAY);
@@ -184,15 +245,14 @@ public class GamePlaying {
 	 */
 	public void touchDownEvent(float x, float y) {
 		switch (gameState) {
-		case PLAYING:
+		case CommonValue.GAME_STATE_PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
-				// status = PAUSE;
+//				pause();
 			} else {
 				world.touchDownEvent(x, y);
 			}
 			break;
-		case PAUSE:
-
+		case CommonValue.GAME_STATE_PAUSE:
 			break;
 		}
 	}
@@ -206,23 +266,28 @@ public class GamePlaying {
 	 *            y坐标
 	 */
 	public void touchUpEvent(float x, float y) {
-		switch (gameState) { 
-		case PLAYING:
+		switch (gameState) {
+		case CommonValue.GAME_STATE_PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
-				pause();
+				 pause();
 			} else {
 				world.touchUpEvent();
 			}
 			break;
-		case PAUSE:
+		case CommonValue.GAME_STATE_PAUSE:
 			if (CommonMethod.isTouchInRect(x, y, menuRect)) {
 				if (CommonMethod.isTouchInRect(x, y, btnResume)) {
 					pBtnResume.setColor(Color.GRAY);
-					pause();
+					unPause();
 				} else if (CommonMethod.isTouchInRect(x, y, btnExit)) {
 				}
 			} else {
 				unPause();
+			}
+			break;
+		case CommonValue.GAME_STATE_LOST:
+			if (CommonMethod.getDistance(x, y, screenW / 2, screenH / 2) <= 30) {
+				MainSurfaceView.gameState = CommonValue.GAME_STATE_START;
 			}
 			break;
 		}
@@ -238,9 +303,9 @@ public class GamePlaying {
 	 */
 	public void touchMove(float x, float y) {
 		switch (gameState) {
-		case PLAYING:
+		case CommonValue.GAME_STATE_PLAYING:
 			break;
-		case PAUSE:
+		case CommonValue.GAME_STATE_PAUSE:
 			if (CommonMethod.isTouchInRect(x, y, btnResume)) {
 				pBtnResume.setColor(Color.DKGRAY);
 			} else {
@@ -275,10 +340,10 @@ public class GamePlaying {
 	 * 游戏暂停
 	 */
 	public void pause() {
-		if (gameState == PLAYING) {
+		if (gameState == CommonValue.GAME_STATE_PLAYING) {
 			backGroundMusic.pause();
 			world.pause();
-			gameState = PAUSE;
+			gameState = CommonValue.GAME_STATE_PAUSE;
 		}
 	}
 
@@ -289,7 +354,7 @@ public class GamePlaying {
 	 */
 	public void saveState(Bundle map) {
 		if (map != null) {
-			map.putInt("status", gameState);
+			// map.putInt("status", gameState);
 
 		}
 	}
@@ -298,9 +363,9 @@ public class GamePlaying {
 	 * 游戏继续
 	 */
 	public void unPause() {
-		if (gameState == PAUSE) {
+		if (gameState == CommonValue.GAME_STATE_PAUSE) {
 			backGroundMusic.start();
-			gameState = PLAYING;
+			gameState = CommonValue.GAME_STATE_PLAYING;
 			world.unPause();
 		}
 	}

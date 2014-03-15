@@ -1,12 +1,13 @@
 package xfocus.game.components;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Random;
 
+import xfocus.game.controllers.GamePlaying;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -24,11 +25,13 @@ public class World {
 	private float dt_x = 0, dt_radius = 0;// 下落物体类的初始x坐标
 	private int addDtOrNot = 0;// 下落物体随机生成器
 	private int difficult = NORMAL; // 游戏难度
-	private long gameTime = 0, beginTime = 0, pauseTime = 0, resumeTime = 0,
-			pausingTime = 0;
+	private long gameTime = 0, beginTime = 0, pauseTime = 0, pausingTime = 0;
 	private DropThing touchedDT = null; // 被选取的dropthing
 	private int rate; // dt产生速率
 	private Paint paint;
+	private int gameMode;
+	private RectF collectionLeft;
+	private RectF collectionRight;
 
 	/**
 	 * 构造函数
@@ -44,11 +47,32 @@ public class World {
 		allDt = new ArrayList<DropThing>();
 		paint = new Paint();
 
-		collision = new Collision(allDt, screenW);
+		collision = new Collision(allDt, screenW, screenH);
 		player = new Player(screenW, screenH);
 		random = new Random();
 		beginTime = System.currentTimeMillis();
 		rate = 20; // 生成dt的速率
+		gameMode = GamePlaying.GAME_FREE_MODE;
+
+		collectionLeft = new RectF(-100, screenH - 150, 100, screenH + 50);
+		collectionRight = new RectF(screenW - 100, screenH - 150,
+				screenW + 100, screenH + 50);
+		Log.i("debug", "world created");
+
+	}
+
+	public World(int screenW, int screenH, int mission) {
+		this.screenH = screenH;
+		this.screenW = screenW;
+		allDt = new ArrayList<DropThing>();
+		paint = new Paint();
+
+		collision = new Collision(allDt, screenW, screenH);
+		player = new Player(screenW, screenH);
+		random = new Random();
+		beginTime = System.currentTimeMillis();
+		rate = 20; // 生成dt的速率
+		gameMode = GamePlaying.GAME_MISSION_MODE;
 		Log.i("debug", "world created");
 	}
 
@@ -63,14 +87,21 @@ public class World {
 		// 分数绘制
 		paint.setColor(Color.BLACK);
 		paint.setTextSize(25);
-		canvas.drawText("score:" + player.getScore(), screenW - 100, 30, paint);
+		canvas.drawText("score:" + player.getScore(), screenW - 200, 30, paint);
 		canvas.drawText("time:" + Long.toString(gameTime / 1000),
 				screenW - 100, 60, paint);
 		// 收集器绘制
+		paint.setTextSize(35);
 		paint.setColor(Color.GREEN);
-		canvas.drawRect(0, screenH - 300, 50, screenH - 50, paint);
-		canvas.drawRect(screenW - 50, screenH - 300, screenW, screenH - 50,
-				paint);
+		canvas.drawArc(collectionLeft, 270, 90, true, paint);
+		paint.setColor(Color.BLACK);
+		canvas.drawText("好", collectionLeft.left + 120,
+				collectionLeft.bottom - 130, paint);
+		paint.setColor(Color.YELLOW);
+		canvas.drawArc(collectionRight, 180, 90, true, paint);
+		paint.setColor(Color.BLACK);
+		canvas.drawText("坏", collectionRight.left + 40,
+				collectionRight.bottom - 130, paint);
 		canvas.restore();
 	}
 
@@ -82,31 +113,44 @@ public class World {
 	}
 
 	/**
-	 * 添加dropThing到游戏世界
-	 * 
-	 * @param x
-	 *            dt初始x坐标
-	 * @param radius
-	 *            dt半径
-	 */
-	public void addDropThing(float x, float radius) {
-		DropThing dt = new DropThing(x, collision, radius);
-		allDt.add(dt);
-	}
-
-	/**
 	 * dt的帧逻辑函数
 	 */
 	private void dtLogic() {
 		for (int i = 0; i < allDt.size(); i++) {
-			DropThing dt = allDt.get(i);
-			if (screenH < (dt.getDropThingY() - dt.getRadius())) { // dropthing溢出屏幕则销毁该对象
-				dt.setState(DropThing.DEAD);
+			if (allDt.get(i) == null) {
 				allDt.remove(i);
+				Log.i("debug", "dtnull");
+			}
+			if (screenH < (allDt.get(i).getDropThingY() - allDt.get(i)
+					.getRadius())) { // dropthing溢出屏幕则销毁该对象
+				allDt.get(i).setState(DropThing.DEAD);
+				allDt.remove(i);
+				player.hp_minus();
+
 			} else {
-				dt.logic();
+				allDt.get(i).logic();
+			}
+			if (CommonMethod.getDistance(allDt.get(i).getDropThingX(), allDt
+					.get(i).getDropThingY(), collectionLeft.left + 100,
+					collectionLeft.top + 100) <= allDt.get(i).getRadius() + 100) {
+				dtCollected(i, CommonValue.DT_ROLE_GOOD);
+			} else if (CommonMethod.getDistance(allDt.get(i).getDropThingX(),
+					allDt.get(i).getDropThingY(), collectionRight.left + 100,
+					collectionRight.top + 100) <= allDt.get(i).getRadius() + 100) {
+				dtCollected(i, CommonValue.DT_ROLE_BAD);
 			}
 		}
+	}
+
+	private void dtCollected(int i, int type) {
+		if (allDt.get(i).getDropThingRole() == type) {
+			player.setScore(player.getScore() + allDt.get(i).getScore());
+			player.hp_plus();
+		} else {
+			player.setScore(player.getScore() - allDt.get(i).getScore());
+			player.hp_minus();
+		}
+		allDt.remove(i);
 	}
 
 	/**
@@ -126,10 +170,25 @@ public class World {
 				}
 			}
 			if (createDtFlag) {
-				dt_radius = 10 * random.nextFloat() + 40;
-				addDropThing(dt_x, dt_radius);
+				dt_radius = 20 * random.nextFloat() + 30;
+				int dt_type = random.nextInt(CommonValue.DT_TYPE.length);
+				if (allDt.size() < 15)
+					addDropThing(dt_x, dt_radius, dt_type);
 			}
 		}
+	}
+
+	/**
+	 * 添加dropThing到游戏世界
+	 * 
+	 * @param x
+	 *            dt初始x坐标
+	 * @param radius
+	 *            dt半径
+	 */
+	public void addDropThing(float x, float radius, int type) {
+		allDt.add(new DropThing(x, collision, radius, type,
+				CommonValue.DT_ROLE[type]));
 	}
 
 	/**
@@ -162,7 +221,6 @@ public class World {
 	public DropThing dtIsTouched(float x, float y) {
 		for (int i = 0; i < allDt.size(); i++) {
 			DropThing dt = allDt.get(i);
-
 			if (Math.sqrt(Math.pow(dt.getDropThingX() - x, 2)
 					+ Math.pow(dt.getDropThingY() - y, 2)) <= (dt.getRadius() + 10)) {// 判断是否触摸到了dropthing，这里的＋10是减少操作难度
 				Log.i("slided", "selected:" + i);
@@ -216,4 +274,7 @@ public class World {
 
 	}
 
+	public Player getPlayer() {
+		return player;
+	}
 }

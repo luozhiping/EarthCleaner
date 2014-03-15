@@ -1,5 +1,6 @@
 package xfocus.game.view;
 
+import xfocus.game.components.CommonValue;
 import xfocus.game.controllers.GameMenu;
 import xfocus.game.controllers.GamePlaying;
 import android.content.Context;
@@ -28,6 +29,8 @@ public class MainSurfaceView extends SurfaceView implements
 	private int screenW, screenH; // ÆÁÄ»³ß´ç
 	private Context mContext;
 	private Bundle outState;
+	private GameMenu gameMenu;
+	public static int gameState = CommonValue.GAME_STATE_START; // ÓÎÏ·×´Ì¬Âë
 
 	/**
 	 * ¹¹Ôìº¯Êý
@@ -76,17 +79,9 @@ public class MainSurfaceView extends SurfaceView implements
 	 * 
 	 */
 	class MainThread extends Thread {
-		public final static int GAME_MENU = 0;
-		public final static int GAME_PLAYING = 1;
-		public final static int GAME_WIN = 2;
-		public final static int GAME_LOST = 3;
-		public final static int GAME_START = 4;
-
 		private SurfaceHolder mSurfaceHolder; // SurfaceView×°ÔØÆ÷£¨SurfaceView±Ø±¸£©
 		private Canvas canvas;
 		private GamePlaying gamePlaying;
-		private GameMenu gameMenu;
-		private int gameState = GAME_START; // ÓÎÏ·×´Ì¬Âë
 		private boolean flag = false; // Ïß³Ì±êÊ¶·û
 
 		/**
@@ -127,17 +122,13 @@ public class MainSurfaceView extends SurfaceView implements
 				if (canvas != null) {
 					canvas.drawRGB(255, 255, 255); // Ë¢ÆÁ
 					switch (gameState) {
-					case GAME_MENU:
+					case CommonValue.GAME_STATE_MENU:
 						gameMenu.doDraw(canvas);
 						break;
-					case GAME_START:
+					case CommonValue.GAME_STATE_START:
 						break;
-					case GAME_PLAYING:
+					case CommonValue.GAME_STATE_PLAYING:
 						gamePlaying.doDraw(canvas);
-						break;
-					case GAME_WIN:
-						break;
-					case GAME_LOST:
 						break;
 					}
 
@@ -153,18 +144,18 @@ public class MainSurfaceView extends SurfaceView implements
 
 		private void logic() {// Ö¡Âß¼­
 			switch (gameState) {
-			case GAME_MENU:
+			case CommonValue.GAME_STATE_MENU:
 				gameMenu.logic();
 				break;
-			case GAME_START:
+			case CommonValue.GAME_STATE_START:
 				prePlayInit();
 				break;
-			case GAME_PLAYING:
+			case CommonValue.GAME_STATE_PLAYING:
 				gamePlaying.logic();
 				break;
-			case GAME_WIN:
+			case CommonValue.GAME_STATE_WIN:
 				break;
-			case GAME_LOST:
+			case CommonValue.GAME_STATE_LOST:
 				break;
 			}
 		}
@@ -175,7 +166,7 @@ public class MainSurfaceView extends SurfaceView implements
 		private void prePlayInit() {
 			gamePlaying = new GamePlaying(screenW, screenH);
 			gamePlaying.init_world(getContext());
-			gameState = GAME_PLAYING;
+			gameState = CommonValue.GAME_STATE_PLAYING;
 		}
 
 		/**
@@ -186,7 +177,7 @@ public class MainSurfaceView extends SurfaceView implements
 		public void setState(int state) {
 			synchronized (mSurfaceHolder) {
 				switch (gameState) {
-				case GAME_PLAYING:
+				case CommonValue.GAME_STATE_PLAYING:
 					// gamePlaying.setState();
 					break;
 				}
@@ -218,7 +209,7 @@ public class MainSurfaceView extends SurfaceView implements
 				Log.i("debug", "saveState");
 
 				switch (gameState) {
-				case GAME_PLAYING:
+				case CommonValue.GAME_STATE_PLAYING:
 					gamePlaying.saveState(map);
 					break;
 				}
@@ -232,7 +223,7 @@ public class MainSurfaceView extends SurfaceView implements
 		public void pause() {
 			synchronized (mSurfaceHolder) {
 				Log.i("debug", "pause");
-				if (gameState == GAME_PLAYING) {
+				if (gameState == CommonValue.GAME_STATE_PLAYING) {
 					// flag = false;
 					gamePlaying.pause();
 				}
@@ -245,7 +236,7 @@ public class MainSurfaceView extends SurfaceView implements
 		public void unPause() {
 			synchronized (mSurfaceHolder) {
 				Log.i("debug", "un_pause");
-				if (gameState == GAME_PLAYING)
+				if (gameState == CommonValue.GAME_STATE_PLAYING)
 					gamePlaying.unPause();
 			}
 		}
@@ -260,16 +251,17 @@ public class MainSurfaceView extends SurfaceView implements
 		 */
 		public void doTouchDown(float x, float y) {
 			switch (gameState) {
-			case GAME_MENU:
+			case CommonValue.GAME_STATE_MENU:
+				gameMenu.touchDownEvent(x, y);
 				break;
-			case GAME_START:
+			case CommonValue.GAME_STATE_START:
 				break;
-			case GAME_PLAYING:
+			case CommonValue.GAME_STATE_PLAYING:
 				gamePlaying.touchDownEvent(x, y);
 				break;
-			case GAME_WIN:
+			case CommonValue.GAME_STATE_WIN:
 				break;
-			case GAME_LOST:
+			case CommonValue.GAME_STATE_LOST:
 				break;
 			}
 		}
@@ -284,16 +276,17 @@ public class MainSurfaceView extends SurfaceView implements
 		 */
 		public void doTouchUp(float x, float y) {
 			switch (gameState) {
-			case GAME_MENU:
+			case CommonValue.GAME_STATE_MENU:
+				gameMenu.touchUpEvent(x, y);
 				break;
-			case GAME_START:
+			case CommonValue.GAME_STATE_START:
 				break;
-			case GAME_PLAYING:
+			case CommonValue.GAME_STATE_PLAYING:
 				gamePlaying.touchUpEvent(x, y);
 				break;
-			case GAME_WIN:
+			case CommonValue.GAME_STATE_WIN:
 				break;
-			case GAME_LOST:
+			case CommonValue.GAME_STATE_LOST:
 				break;
 			}
 		}
@@ -308,16 +301,17 @@ public class MainSurfaceView extends SurfaceView implements
 		 */
 		public void doTouchMove(float x, float y) {
 			switch (gameState) {
-			case GAME_MENU:
+			case CommonValue.GAME_STATE_MENU:
+
 				break;
-			case GAME_START:
+			case CommonValue.GAME_STATE_START:
 				break;
-			case GAME_PLAYING:
+			case CommonValue.GAME_STATE_PLAYING:
 				gamePlaying.touchMove(x, y);
 				break;
-			case GAME_WIN:
+			case CommonValue.GAME_STATE_WIN:
 				break;
-			case GAME_LOST:
+			case CommonValue.GAME_STATE_LOST:
 				break;
 			}
 		}
@@ -333,16 +327,17 @@ public class MainSurfaceView extends SurfaceView implements
 		public void onFling(MotionEvent e1, MotionEvent e2, float distanceX,
 				float distanceY) {
 			switch (gameState) {
-			case GAME_MENU:
+			case CommonValue.GAME_STATE_MENU:
+				gameMenu.onFling(e1, e2, distanceX, distanceY);
 				break;
-			case GAME_START:
+			case CommonValue.GAME_STATE_START:
 				break;
-			case GAME_PLAYING:
+			case CommonValue.GAME_STATE_PLAYING:
 				gamePlaying.onFling(e1, e2, distanceX, distanceY);
 				break;
-			case GAME_WIN:
+			case CommonValue.GAME_STATE_WIN:
 				break;
-			case GAME_LOST:
+			case CommonValue.GAME_STATE_LOST:
 				break;
 			}
 		}
@@ -352,8 +347,9 @@ public class MainSurfaceView extends SurfaceView implements
 		 */
 		public void keyBack() {
 			switch (gameState) {
-			case GAME_PLAYING:
+			case CommonValue.GAME_STATE_PLAYING:
 				break;
+
 			}
 		}
 
@@ -374,6 +370,7 @@ public class MainSurfaceView extends SurfaceView implements
 		screenW = this.getWidth();
 		screenH = this.getHeight();
 		// thread.start();
+		gameMenu = new GameMenu(screenW, screenH);
 		thread.restoreState(outState);
 	}
 
