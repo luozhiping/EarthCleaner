@@ -30,7 +30,7 @@ public class MainSurfaceView extends SurfaceView implements
 	private Context mContext;
 	private Bundle outState;
 	private GameMenu gameMenu;
-	public static int gameState = CommonValue.GAME_STATE_START; // ÓÎÏ·×´Ì¬Âë
+	public static int gameState = CommonValue.GAME_STATE_MENU; // ÓÎÏ·×´Ì¬Âë
 
 	/**
 	 * ¹¹Ôìº¯Êý
@@ -328,7 +328,7 @@ public class MainSurfaceView extends SurfaceView implements
 				float distanceY) {
 			switch (gameState) {
 			case CommonValue.GAME_STATE_MENU:
-				gameMenu.onFling(e1, e2, distanceX, distanceY);
+//				gameMenu.onFling(e1, e2, distanceX, distanceY);
 				break;
 			case CommonValue.GAME_STATE_START:
 				break;
@@ -393,6 +393,8 @@ public class MainSurfaceView extends SurfaceView implements
 		thread.saveState(outState);
 	}
 
+	byte[] lock = new byte[0];
+
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -402,7 +404,13 @@ public class MainSurfaceView extends SurfaceView implements
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
 			thread.doTouchMove(event.getX(), event.getY());
 		}
-
+		synchronized (lock) {//
+			try {
+				lock.wait(40);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		return gesture.onTouchEvent(event);
 	}
 
@@ -425,7 +433,9 @@ public class MainSurfaceView extends SurfaceView implements
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
-		thread.onFling(e1, e2, distanceX, distanceY);
+		if (Math.abs(e1.getX() - e2.getX()) > 10) {
+			thread.onFling(e1, e2, distanceX, distanceY);
+		}
 		return false;
 	}
 

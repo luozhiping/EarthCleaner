@@ -6,8 +6,10 @@ import android.graphics.Paint;
  * 关于我们
  */
 public class About {
-	public About() {
-
+	private int screenW,screenH;
+	public About(int screenW, int screenH) {
+		this.screenW = screenW;
+		this.screenH = screenH;
 	}
 
 	public void doDraw(Canvas canvas, Paint paint) {

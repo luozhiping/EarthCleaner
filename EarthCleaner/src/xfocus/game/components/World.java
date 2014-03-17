@@ -20,6 +20,7 @@ public class World {
 	private Collision collision;
 	private Player player;
 	private ArrayList<DropThing> allDt;// 屏幕中下落物体的集合
+	private ArrayList<Score> allScore;// 分数显示的集合
 	private int screenW, screenH; // 屏幕尺寸
 	private Random random;
 	private float dt_x = 0, dt_radius = 0;// 下落物体类的初始x坐标
@@ -32,6 +33,8 @@ public class World {
 	private int gameMode;
 	private RectF collectionLeft;
 	private RectF collectionRight;
+	private Score combo;
+	private int cCombo;
 
 	/**
 	 * 构造函数
@@ -45,8 +48,10 @@ public class World {
 		this.screenH = screenH;
 		this.screenW = screenW;
 		allDt = new ArrayList<DropThing>();
+		allScore = new ArrayList<Score>();
 		paint = new Paint();
-
+		cCombo = 0;
+		combo = new Score(screenW, screenH);
 		collision = new Collision(allDt, screenW, screenH);
 		player = new Player(screenW, screenH);
 		random = new Random();
@@ -61,6 +66,13 @@ public class World {
 
 	}
 
+	/**
+	 * 闯关模式构造函数
+	 * 
+	 * @param screenW
+	 * @param screenH
+	 * @param mission
+	 */
 	public World(int screenW, int screenH, int mission) {
 		this.screenH = screenH;
 		this.screenW = screenW;
@@ -76,21 +88,43 @@ public class World {
 		Log.i("debug", "world created");
 	}
 
+	/**
+	 * 游戏运行帧绘图
+	 * @param canvas
+	 */
 	public void doDraw(Canvas canvas) {
+		combo.drawCombo(canvas, cCombo);
 		for (int i = 0; i < allDt.size(); i++) {
-			DropThing dt = allDt.get(i);
-			dt.doDraw(canvas);
+			allDt.get(i).doDraw(canvas);
+		}
+		for (int i = 0; i < allScore.size(); i++) {
+			allScore.get(i).drawScore(canvas);
 		}
 		player.doDraw(canvas);
+		drawScore(canvas);
+		drawCollector(canvas);
+	}
 
+	/**
+	 * 分数栏绘制
+	 * @param canvas
+	 */
+	private void drawScore(Canvas canvas) {
 		canvas.save();
-		// 分数绘制
 		paint.setColor(Color.BLACK);
 		paint.setTextSize(25);
 		canvas.drawText("score:" + player.getScore(), screenW - 200, 30, paint);
 		canvas.drawText("time:" + Long.toString(gameTime / 1000),
 				screenW - 100, 60, paint);
-		// 收集器绘制
+		canvas.restore();
+	}
+
+	/**
+	 * 收集器绘制
+	 * @param canvas
+	 */
+	private void drawCollector(Canvas canvas) {
+		canvas.save();
 		paint.setTextSize(35);
 		paint.setColor(Color.GREEN);
 		canvas.drawArc(collectionLeft, 270, 90, true, paint);
@@ -105,11 +139,26 @@ public class World {
 		canvas.restore();
 	}
 
+	/**
+	 * 游戏运行帧逻辑
+	 */
 	public void playingLogic() {
 		addDtToWorld(rate);
 		dtLogic();
+		scoreLogic();
 		player.logic();
 		gameTime = System.currentTimeMillis() - beginTime; // 游戏时间记录
+	}
+
+	/**
+	 * 漂浮分数帧逻辑
+	 */
+	private void scoreLogic() {
+		for (int i = 0; i < allScore.size(); i++) {
+			if (allScore.get(i).getFrame() <= 0) {
+				allScore.remove(i);
+			}
+		}
 	}
 
 	/**
@@ -126,7 +175,7 @@ public class World {
 				allDt.get(i).setState(DropThing.DEAD);
 				allDt.remove(i);
 				player.hp_minus();
-
+				cCombo = 0;
 			} else {
 				allDt.get(i).logic();
 			}
@@ -142,15 +191,33 @@ public class World {
 		}
 	}
 
+	/**
+	 * dt被收集出发函数
+	 * @param i
+	 * @param type
+	 */
 	private void dtCollected(int i, int type) {
 		if (allDt.get(i).getDropThingRole() == type) {
 			player.setScore(player.getScore() + allDt.get(i).getScore());
 			player.hp_plus();
+			addScore(allDt.get(i).getScore(), type);
+			cCombo++;
 		} else {
 			player.setScore(player.getScore() - allDt.get(i).getScore());
 			player.hp_minus();
+			addScore(0 - allDt.get(i).getScore(), type);
+			cCombo = 0;
 		}
 		allDt.remove(i);
+	}
+
+	/**
+	 * 收集成功漂浮的分数
+	 * @param score
+	 * @param type
+	 */
+	private void addScore(int score, int type) {
+		allScore.add(new Score(screenW, screenH, score, type));
 	}
 
 	/**
@@ -221,10 +288,11 @@ public class World {
 	public DropThing dtIsTouched(float x, float y) {
 		for (int i = 0; i < allDt.size(); i++) {
 			DropThing dt = allDt.get(i);
-			if (Math.sqrt(Math.pow(dt.getDropThingX() - x, 2)
-					+ Math.pow(dt.getDropThingY() - y, 2)) <= (dt.getRadius() + 10)) {// 判断是否触摸到了dropthing，这里的＋10是减少操作难度
+			if (CommonMethod.getDistance(x, y, dt.getDropThingX(),
+					dt.getDropThingY()) <= (dt.getRadius() + 10)) {// 判断是否触摸到了dropthing，这里的＋10是减少操作难度
 				Log.i("slided", "selected:" + i);
-				return allDt.get(i);
+				if (allDt.get(i).getState() == DropThing.DROPING)
+					return allDt.get(i);
 			}
 		}
 		return null;

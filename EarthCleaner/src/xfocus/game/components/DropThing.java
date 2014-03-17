@@ -4,8 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-/*
- * 
+/**
+ *  下落物体类
  */
 public class DropThing {
 	public final static int DROPING = 0; // 状态：自由下落
@@ -146,4 +146,7 @@ public class DropThing {
 		return score;
 	}
 	
+	public int getState() {
+		return state;
+	}
 }

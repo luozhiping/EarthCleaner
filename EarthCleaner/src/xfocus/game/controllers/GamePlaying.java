@@ -280,6 +280,7 @@ public class GamePlaying {
 					pBtnResume.setColor(Color.GRAY);
 					unPause();
 				} else if (CommonMethod.isTouchInRect(x, y, btnExit)) {
+					MainSurfaceView.gameState = CommonValue.GAME_STATE_MENU;
 				}
 			} else {
 				unPause();
