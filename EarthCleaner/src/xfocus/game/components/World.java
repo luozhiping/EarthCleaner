@@ -20,7 +20,7 @@ public class World {
 	private Collision collision;
 	private Player player;
 	private ArrayList<DropThing> allDt;// 屏幕中下落物体的集合
-	private ArrayList<Score> allScore;// 分数显示的集合
+	private ArrayList<PopMessage> allScore;// 分数显示的集合
 	private int screenW, screenH; // 屏幕尺寸
 	private Random random;
 	private float dt_x = 0, dt_radius = 0;// 下落物体类的初始x坐标
@@ -33,7 +33,7 @@ public class World {
 	private int gameMode;
 	private RectF collectionLeft;
 	private RectF collectionRight;
-	private Score combo;
+	private Combo combo;
 	private int cCombo;
 
 	/**
@@ -48,10 +48,10 @@ public class World {
 		this.screenH = screenH;
 		this.screenW = screenW;
 		allDt = new ArrayList<DropThing>();
-		allScore = new ArrayList<Score>();
+		allScore = new ArrayList<PopMessage>();
 		paint = new Paint();
 		cCombo = 0;
-		combo = new Score(screenW, screenH);
+		combo = new Combo(screenW, screenH);
 		collision = new Collision(allDt, screenW, screenH);
 		player = new Player(screenW, screenH);
 		random = new Random();
@@ -90,10 +90,11 @@ public class World {
 
 	/**
 	 * 游戏运行帧绘图
+	 * 
 	 * @param canvas
 	 */
 	public void doDraw(Canvas canvas) {
-		combo.drawCombo(canvas, cCombo);
+		combo.doDraw(canvas, cCombo);
 		for (int i = 0; i < allDt.size(); i++) {
 			allDt.get(i).doDraw(canvas);
 		}
@@ -107,6 +108,7 @@ public class World {
 
 	/**
 	 * 分数栏绘制
+	 * 
 	 * @param canvas
 	 */
 	private void drawScore(Canvas canvas) {
@@ -121,6 +123,7 @@ public class World {
 
 	/**
 	 * 收集器绘制
+	 * 
 	 * @param canvas
 	 */
 	private void drawCollector(Canvas canvas) {
@@ -171,7 +174,7 @@ public class World {
 				Log.i("debug", "dtnull");
 			}
 			if (screenH < (allDt.get(i).getDropThingY() - allDt.get(i)
-					.getRadius())) { // dropthing溢出屏幕则销毁该对象
+					.getRadius())) { // dropThing溢出屏幕则销毁该对象
 				allDt.get(i).setState(DropThing.DEAD);
 				allDt.remove(i);
 				player.hp_minus();
@@ -182,30 +185,30 @@ public class World {
 			if (CommonMethod.getDistance(allDt.get(i).getDropThingX(), allDt
 					.get(i).getDropThingY(), collectionLeft.left + 100,
 					collectionLeft.top + 100) <= allDt.get(i).getRadius() + 100) {
-				dtCollected(i, CommonValue.DT_ROLE_GOOD);
+				dtCollected(i, CommonValue.COLLECTOR_GOOD);
 			} else if (CommonMethod.getDistance(allDt.get(i).getDropThingX(),
 					allDt.get(i).getDropThingY(), collectionRight.left + 100,
 					collectionRight.top + 100) <= allDt.get(i).getRadius() + 100) {
-				dtCollected(i, CommonValue.DT_ROLE_BAD);
+				dtCollected(i, CommonValue.COLLECTOR_BAD);
 			}
 		}
 	}
 
 	/**
 	 * dt被收集出发函数
+	 * 
 	 * @param i
-	 * @param type
+	 * @param collector
 	 */
-	private void dtCollected(int i, int type) {
-		if (allDt.get(i).getDropThingRole() == type) {
+	private void dtCollected(int i, int collector) {
+		addScore(allDt.get(i), collector);
+		if (allDt.get(i).getDropThingRole() == collector) {
 			player.setScore(player.getScore() + allDt.get(i).getScore());
 			player.hp_plus();
-			addScore(allDt.get(i).getScore(), type);
 			cCombo++;
 		} else {
 			player.setScore(player.getScore() - allDt.get(i).getScore());
 			player.hp_minus();
-			addScore(0 - allDt.get(i).getScore(), type);
 			cCombo = 0;
 		}
 		allDt.remove(i);
@@ -213,11 +216,20 @@ public class World {
 
 	/**
 	 * 收集成功漂浮的分数
+	 * 
 	 * @param score
 	 * @param type
 	 */
-	private void addScore(int score, int type) {
-		allScore.add(new Score(screenW, screenH, score, type));
+	private void addScore(DropThing dt, int collector) {
+		if (dt.getDropThingRole() == collector) {
+			allScore.add(new PopMessage(screenW, screenH, "+"
+					+ Integer.toString(dt.getScore()), 1, dt.getDropThingX(),
+					dt.getDropThingY()));
+		} else {
+			allScore.add(new PopMessage(screenW, screenH, Integer
+					.toString(0 - dt.getScore()), 1, dt.getDropThingX(), dt
+					.getDropThingY()));
+		}
 	}
 
 	/**
@@ -232,7 +244,7 @@ public class World {
 			boolean createDtFlag = true;
 			for (int i = 0; i < allDt.size(); i++) {
 				if (CommonMethod.getDistance(dt_x, 0 - 50, allDt.get(i)
-						.getDropThingX(), allDt.get(i).getDropThingY()) < 100) {
+						.getDropThingX(), allDt.get(i).getDropThingY()) < 120) {
 					createDtFlag = false;
 				}
 			}

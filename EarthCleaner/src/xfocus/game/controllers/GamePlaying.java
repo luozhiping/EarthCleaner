@@ -14,17 +14,17 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 
 /*
  * 游戏过程控制器
  */
-public class GamePlaying {
+public class GamePlaying extends Page {
 	public final static int GAME_FREE_MODE = 0;
 	public final static int GAME_MISSION_MODE = 1;
 
 	private World world; // 游戏世界
-	private int screenW, screenH; // 屏幕尺寸
 	private int gameState; // 游戏状态
 	private RectF menuRect, btnResume, btnSetting, btnExit, btnPause, lostRect; // 菜单按钮矩形
 	private Paint pBtnResume, pBtnSetting, pBtnExit; // 菜单按钮画笔
@@ -45,9 +45,9 @@ public class GamePlaying {
 	 * @param screenH
 	 *            屏幕高
 	 */
+
 	public GamePlaying(int screenW, int screenH) {
-		this.screenW = screenW;
-		this.screenH = screenH;
+		super(screenW, screenH);
 		gameState = CommonValue.GAME_STATE_PLAYING;
 		paint = new Paint();
 		this.gameMode = GAME_FREE_MODE;
@@ -60,14 +60,14 @@ public class GamePlaying {
 	 * @param screenH
 	 * @param mission
 	 */
-	public GamePlaying(int screenW, int screenH, int mission) {
-		this.screenW = screenW;
-		this.screenH = screenH;
-		gameState = CommonValue.GAME_STATE_PLAYING;
-		paint = new Paint();
-		this.mission = mission;
-		this.gameMode = GAME_MISSION_MODE;
-	}
+//	public GamePlaying(int screenW, int screenH, int mission) {
+//		this.screenW = screenW;
+//		this.screenH = screenH;
+//		gameState = CommonValue.GAME_STATE_PLAYING;
+//		paint = new Paint();
+//		this.mission = mission;
+//		this.gameMode = GAME_MISSION_MODE;
+//	}
 
 	public void logic() { // 逻辑
 		switch (gameState) {
@@ -188,6 +188,7 @@ public class GamePlaying {
 		world = new World(screenW, screenH);
 		init_rect(); // 初始化菜单
 		init_music(context); // 初始化音乐音效
+		Log.i("debug", "init world");
 	}
 
 	public void init_world(Context context, int mission) {
@@ -247,7 +248,7 @@ public class GamePlaying {
 		switch (gameState) {
 		case CommonValue.GAME_STATE_PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
-//				pause();
+				// pause();
 			} else {
 				world.touchDownEvent(x, y);
 			}
@@ -269,7 +270,7 @@ public class GamePlaying {
 		switch (gameState) {
 		case CommonValue.GAME_STATE_PLAYING:
 			if (CommonMethod.isTouchInRect(x, y, btnPause)) {
-				 pause();
+				pause();
 			} else {
 				world.touchUpEvent();
 			}

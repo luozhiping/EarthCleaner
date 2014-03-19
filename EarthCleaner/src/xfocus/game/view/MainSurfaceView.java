@@ -1,8 +1,10 @@
 package xfocus.game.view;
 
 import xfocus.game.components.CommonValue;
+import xfocus.game.controllers.About;
 import xfocus.game.controllers.GameMenu;
 import xfocus.game.controllers.GamePlaying;
+import xfocus.game.controllers.HighScore;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -82,6 +84,8 @@ public class MainSurfaceView extends SurfaceView implements
 		private SurfaceHolder mSurfaceHolder; // SurfaceView装载器（SurfaceView必备）
 		private Canvas canvas;
 		private GamePlaying gamePlaying;
+		private About about;
+		private HighScore highScore;
 		private boolean flag = false; // 线程标识符
 
 		/**
@@ -124,6 +128,16 @@ public class MainSurfaceView extends SurfaceView implements
 					switch (gameState) {
 					case CommonValue.GAME_STATE_MENU:
 						gameMenu.doDraw(canvas);
+						break;
+					case CommonValue.GAME_STATE_HIGHSCORE:
+						if (highScore == null)
+							highScore = new HighScore(screenW, screenH);
+						highScore.doDraw(canvas);
+						break;
+					case CommonValue.GAME_STATE_ABOUT:
+						if (about == null)
+							about = new About(screenW, screenH);
+						about.doDraw(canvas);
 						break;
 					case CommonValue.GAME_STATE_START:
 						break;
@@ -254,6 +268,12 @@ public class MainSurfaceView extends SurfaceView implements
 			case CommonValue.GAME_STATE_MENU:
 				gameMenu.touchDownEvent(x, y);
 				break;
+			case CommonValue.GAME_STATE_HIGHSCORE:
+				highScore.touchDownEvent(x, y);
+				break;
+			case CommonValue.GAME_STATE_ABOUT:
+				about.touchDownEvent(x, y);
+				break;
 			case CommonValue.GAME_STATE_START:
 				break;
 			case CommonValue.GAME_STATE_PLAYING:
@@ -279,6 +299,12 @@ public class MainSurfaceView extends SurfaceView implements
 			case CommonValue.GAME_STATE_MENU:
 				gameMenu.touchUpEvent(x, y);
 				break;
+			case CommonValue.GAME_STATE_HIGHSCORE:
+				highScore.touchUpEvent(x, y);
+				break;
+			case CommonValue.GAME_STATE_ABOUT:
+				about.touchUpEvent(x, y);
+				break;
 			case CommonValue.GAME_STATE_START:
 				break;
 			case CommonValue.GAME_STATE_PLAYING:
@@ -302,7 +328,13 @@ public class MainSurfaceView extends SurfaceView implements
 		public void doTouchMove(float x, float y) {
 			switch (gameState) {
 			case CommonValue.GAME_STATE_MENU:
-
+				gameMenu.touchMove(x, y);
+				break;
+			case CommonValue.GAME_STATE_HIGHSCORE:
+				highScore.touchMove(x, y);
+				break;
+			case CommonValue.GAME_STATE_ABOUT:
+				about.touchMove(x, y);
 				break;
 			case CommonValue.GAME_STATE_START:
 				break;
@@ -328,7 +360,7 @@ public class MainSurfaceView extends SurfaceView implements
 				float distanceY) {
 			switch (gameState) {
 			case CommonValue.GAME_STATE_MENU:
-//				gameMenu.onFling(e1, e2, distanceX, distanceY);
+				// gameMenu.onFling(e1, e2, distanceX, distanceY);
 				break;
 			case CommonValue.GAME_STATE_START:
 				break;
@@ -348,6 +380,13 @@ public class MainSurfaceView extends SurfaceView implements
 		public void keyBack() {
 			switch (gameState) {
 			case CommonValue.GAME_STATE_PLAYING:
+				break;
+			case CommonValue.GAME_STATE_HIGHSCORE:
+			case CommonValue.GAME_STATE_ABOUT:
+			case CommonValue.GAME_STATE_SETTING:
+				gameState = CommonValue.GAME_STATE_MENU;
+				break;
+			case CommonValue.GAME_STATE_EXIT:
 				break;
 
 			}

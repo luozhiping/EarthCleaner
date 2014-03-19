@@ -12,20 +12,18 @@ import android.view.MotionEvent;
 /*
  * 游戏菜单
  */
-public class GameMenu {
+public class GameMenu extends Page {
 
-	private int screenW, screenH; // 屏幕尺寸
 	// 开始游戏按钮、游戏记录按钮、设置游戏按钮、退出游戏按钮、实时天气和环保tips按钮
 	private RectF menuStart, menuRecord, menuSetting, menuExit, menuMaker,
 			menuTipsRect;
-	// 开始、记录、设置、退出、实时天气菜单的状态
-	boolean gameBeginState, gameRecordState, gameSettingState, gameExitState,
-			gameTipsState;
-	private Paint paint,textPaint;
+
+	private Paint paint, textPaint;
+	private Paint menuStartPaint, menuRecordPaint, menuSettingPaint,
+			menuMakerPaint, menuExitPaint, menuTipsRectPaint;
 
 	public GameMenu(int screenW, int screenH) {
-		this.screenW = screenW;
-		this.screenH = screenH;
+		super(screenW, screenH);
 		paint = new Paint();
 		textPaint = new Paint();
 		// 开始游戏矩形初始化
@@ -61,11 +59,24 @@ public class GameMenu {
 		// 实时天气和环保tips矩形初始化
 		menuTipsRect = new RectF(0, screenH - 50, screenW, screenH);
 
-		gameBeginState = false; // 开始按钮的状态
-		gameRecordState = false; // 记录按钮的状态
-		gameSettingState = false; // 设置按钮的状态
-		gameExitState = false; // 退出按钮的状态
-		gameTipsState = false; // 实时天气tips的状态
+		menuStartPaint = new Paint();
+		menuStartPaint.setColor(Color.WHITE);
+
+		menuRecordPaint = new Paint();
+		menuRecordPaint.setColor(Color.WHITE);
+
+		menuSettingPaint = new Paint();
+		menuSettingPaint.setColor(Color.WHITE);
+
+		menuMakerPaint = new Paint();
+		menuMakerPaint.setColor(Color.WHITE);
+
+		menuExitPaint = new Paint();
+		menuExitPaint.setColor(Color.WHITE);
+
+		menuTipsRectPaint = new Paint();
+		menuTipsRectPaint.setColor(Color.WHITE);
+
 	}
 
 	// 绘制游戏菜单
@@ -82,15 +93,16 @@ public class GameMenu {
 		paint.setAntiAlias(true); // 取消锯齿效果
 		paint.setColor(Color.WHITE); // 设置画笔的颜色
 
-		drawMenuButton(canvas, paint, menuStart, CommonValue.MENU_BTN_BEGIN);
+		drawMenuButton(canvas, menuStartPaint, menuStart, CommonValue.MENU_BTN_BEGIN);
 
-		drawMenuButton(canvas, paint, menuRecord, CommonValue.MENU_BTN_RECORD);
+		drawMenuButton(canvas, menuRecordPaint, menuRecord, CommonValue.MENU_BTN_RECORD);
 
-		drawMenuButton(canvas, paint, menuSetting, CommonValue.MENU_BTN_SETTING);
+		drawMenuButton(canvas, menuSettingPaint, menuSetting, CommonValue.MENU_BTN_SETTING);
 
-		drawMenuButton(canvas, paint, menuMaker, CommonValue.MENU_BTN_ABOUT);
+		drawMenuButton(canvas, menuMakerPaint, menuMaker, CommonValue.MENU_BTN_ABOUT);
 
-		drawMenuButton(canvas, paint, menuExit, CommonValue.MENU_BTN_EXIT);
+		drawMenuButton(canvas, menuExitPaint, menuExit, CommonValue.MENU_BTN_EXIT);
+
 
 		canvas.drawRoundRect(menuTipsRect, 10, 10, paint);
 		paint.setColor(Color.BLACK);
@@ -159,7 +171,8 @@ public class GameMenu {
 		} else if (CommonMethod.isTouchInRect(x, y, menuExit)) {
 			MainSurfaceView.gameState = CommonValue.GAME_STATE_EXIT;
 			; // 添加退出游戏语句
-		} else if (CommonMethod.isTouchInRect(x, y, menuTipsRect)) {
+		} else if (CommonMethod.isTouchInRect(x, y, menuMaker)) {
+			MainSurfaceView.gameState = CommonValue.GAME_STATE_ABOUT;
 			; // 添加实时天气和环保tips
 		}
 
@@ -168,6 +181,39 @@ public class GameMenu {
 	public void logic() {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void touchMove(float x, float y) {
+		if (CommonMethod.isTouchInRect(x, y, menuStart)) {
+			menuStartPaint.setColor(Color.GRAY);
+		} else {
+			menuStartPaint.setColor(Color.WHITE);
+		}
+		if (CommonMethod.isTouchInRect(x, y, menuRecord)) {
+			menuRecordPaint.setColor(Color.GRAY);
+		} else {
+			menuRecordPaint.setColor(Color.WHITE);
+		}
+		if (CommonMethod.isTouchInRect(x, y, menuSetting)) {
+			menuSettingPaint.setColor(Color.GRAY);
+		} else {
+			menuSettingPaint.setColor(Color.WHITE);
+		}
+		if (CommonMethod.isTouchInRect(x, y, menuMaker)) {
+			menuMakerPaint.setColor(Color.GRAY);
+		} else {
+			menuMakerPaint.setColor(Color.WHITE);
+		}
+		if (CommonMethod.isTouchInRect(x, y, menuExit)) {
+			menuExitPaint.setColor(Color.GRAY);
+		} else {
+			menuExitPaint.setColor(Color.WHITE);
+		}
+		if (CommonMethod.isTouchInRect(x, y, menuTipsRect)) {
+			menuTipsRectPaint.setColor(Color.GRAY);
+		} else {
+			menuTipsRectPaint.setColor(Color.WHITE);
+		}
 	}
 
 }

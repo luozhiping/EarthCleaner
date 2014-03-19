@@ -10,6 +10,8 @@ public class CommonValue {
 	/** DropThing相关值 */
 	public static final int DT_ROLE_GOOD = 0; // 好东西
 	public static final int DT_ROLE_BAD = 1; // 坏东西
+	public static final int COLLECTOR_GOOD = 0;
+	public static final int COLLECTOR_BAD = 1;
 
 	public static final int DT_TYPE_OXYGEN = 0; // 氧气
 	public static final int DT_TYPE_SULFUR_DIOXIDE = 1; // 二氧化硫
